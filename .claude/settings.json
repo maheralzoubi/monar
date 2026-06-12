@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vite *)",
+      "Bash(kill 39178)",
+      "Bash(pkill -f \"tsx server/server.ts\")",
+      "Bash(pkill -f \"tsx server/server\")",
+      "Bash(lsof -ti:3000)",
+      "Bash(xargs kill -9)",
+      "Bash(lsof -i:3000)",
+      "Bash(stripe --version)",
+      "Bash(brew install *)",
+      "Bash(stripe login *)",
+      "Bash(echo \"Server PID: $!\")",
+      "Bash(curl -s http://localhost:3000/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"email\":\"test@test.com\",\"password\":\"test\"}')",
+      "Bash(ps -p 42416 -p 98833 -o pid,command)",
+      "Bash(kill 42416)",
+      "Bash(node -e \"require\\('jsqr'\\); console.log\\('jsqr OK'\\)\")",
+      "Bash(java -version)",
+      "Bash(/Users/maheralzoubi/Desktop/projects/menu_qr/android/gradlew --version)",
+      "Bash(cp /Users/maheralzoubi/Desktop/projects/menu_qr/android/app/build/outputs/apk/debug/app-debug.apk ~/Desktop/MenuQR-debug.apk && echo \"Copied to Desktop\" && ls -lh ~/Desktop/MenuQR-debug.apk)",
+      "Bash(adb devices *)",
+      "Bash(open -R ~/Desktop/MenuQR-debug.apk)",
+      "Bash(ipconfig getifaddr *)"
+    ],
+    "additionalDirectories": [
+      "/tmp",
+      "/private/tmp",
+      "/Users/maheralzoubi/Desktop"
+    ]
+  }
+}
