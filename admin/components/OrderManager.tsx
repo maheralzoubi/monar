@@ -13,7 +13,19 @@ interface CartItem { id: string; name: string; price: number; image: string; qua
 interface Order {
   _id: string; items: CartItem[]; total: number; status: string;
   customerName?: string; address?: string; tableNumber?: string; createdAt: string;
+  order_source?: string; payment_status?: string; payment_method?: string; cashier_name?: string;
 }
+
+const SOURCE_LABEL: Record<string, string> = { CASHIER_POS: 'POS', QR_CODE: 'QR', CUSTOMER_APP: 'App' };
+const SOURCE_COLOR: Record<string, string> = { CASHIER_POS: 'bg-violet-100 text-violet-700', QR_CODE: 'bg-sky-100 text-sky-700', CUSTOMER_APP: 'bg-emerald-100 text-emerald-700' };
+const PAYMENT_COLOR: Record<string, string> = {
+  PAID: 'bg-emerald-100 text-emerald-700',
+  UNPAID: 'bg-red-100 text-red-600',
+  PENDING_CASH: 'bg-amber-100 text-amber-700',
+  PENDING_CARD_PAYMENT: 'bg-blue-100 text-blue-700',
+  PENDING_CLIQ_VERIFICATION: 'bg-purple-100 text-purple-700',
+  REFUNDED: 'bg-gray-100 text-gray-600',
+};
 
 type OrderView = 'feed' | 'kds' | 'archive';
 interface Toast { id: number; type: 'new' | 'preparing' | 'delivered'; orderRef: string; table?: string; }
@@ -132,6 +144,7 @@ export const OrderManager = () => {
                       <span>{Math.floor((Date.now() - new Date(order.createdAt).getTime()) / 60000)}m</span>
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-primary">{order.status}</span>
+                    {order.order_source && <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${SOURCE_COLOR[order.order_source] ?? 'bg-gray-100 text-gray-600'}`}>{SOURCE_LABEL[order.order_source] ?? order.order_source}</span>}
                   </div>
                 </div>
                 <div className="p-5 flex-1 space-y-4 overflow-y-auto no-scrollbar">
@@ -267,7 +280,9 @@ export const OrderManager = () => {
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center gap-6 ms-6">
+                <div className="flex items-center gap-2 ms-6 flex-wrap justify-end">
+                  {order.order_source && <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase ${SOURCE_COLOR[order.order_source] ?? 'bg-gray-100 text-gray-600'}`}>{SOURCE_LABEL[order.order_source] ?? order.order_source}</span>}
+                  {order.payment_status && <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase ${PAYMENT_COLOR[order.payment_status] ?? 'bg-gray-100 text-gray-600'}`}>{order.payment_status.replace(/_/g, ' ')}</span>}
                   <div className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
                     order.status === 'Delivered' ? 'bg-emerald-100 text-emerald-700' :
                     order.status === 'Preparing' ? 'bg-primary/10 text-primary' : 'bg-amber-100 text-amber-700'

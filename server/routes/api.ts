@@ -13,7 +13,7 @@ import { requireAuth, optionalAuth, AuthRequest } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import { createMenuItemSchema, updateMenuItemSchema } from '../schemas/menu.schema';
 import { createCategorySchema, updateCategorySchema } from '../schemas/category.schema';
-import { createOrderSchema, updateOrderStatusSchema } from '../schemas/order.schema';
+import { createOrderSchema, updateOrderStatusSchema, confirmPaymentSchema } from '../schemas/order.schema';
 import { createReservationSchema, updateReservationStatusSchema } from '../schemas/reservation.schema';
 import { createReviewSchema } from '../schemas/review.schema';
 import { createPromoCodeSchema, validatePromoCodeSchema } from '../schemas/promoCode.schema';
@@ -107,6 +107,7 @@ router.post('/orders/archive-today', requireAuth, ordersController.archiveToday)
 router.get('/orders/:id', ordersController.getOrder);
 router.get('/orders', requireAuth, ordersController.getOrders);
 router.patch('/orders/:id/status', requireAuth, validate(updateOrderStatusSchema), ordersController.updateStatus);
+router.patch('/orders/:id/payment', requireAuth, validate(confirmPaymentSchema), ordersController.confirmPayment);
 router.delete('/orders/:id', requireAuth, ordersController.deleteOrder);
 
 // Tables — public read (customer app), admin write

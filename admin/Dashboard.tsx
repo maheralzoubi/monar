@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Utensils, ShoppingBag, Calendar,
-  Star, LogOut, TrendingUp, Settings as SettingsIcon, QrCode, Tag
+  Star, LogOut, TrendingUp, Settings as SettingsIcon, QrCode, Tag, MonitorSmartphone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
@@ -15,9 +15,10 @@ import { Analytics } from './components/Analytics';
 import { Settings } from './components/Settings';
 import { QRManager } from './components/QRManager';
 import { PromoManager } from './components/PromoManager';
+import { CashierPOS } from './components/CashierPOS';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 
-export type DashboardTab = 'overview' | 'orders' | 'menu' | 'reservations' | 'reviews' | 'analytics' | 'qr' | 'promos' | 'settings';
+export type DashboardTab = 'overview' | 'orders' | 'menu' | 'reservations' | 'reviews' | 'analytics' | 'qr' | 'promos' | 'cashier' | 'settings';
 
 interface UserProfile { email: string; role: string; name?: string; title?: string; avatar?: string; restaurantId?: string; }
 
@@ -60,6 +61,7 @@ export const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
     { id: 'analytics',    icon: <TrendingUp className="w-5 h-5" /> },
     { id: 'qr',           icon: <QrCode className="w-5 h-5" /> },
     { id: 'promos',       icon: <Tag className="w-5 h-5" /> },
+    { id: 'cashier',      icon: <MonitorSmartphone className="w-5 h-5" /> },
     { id: 'settings',     icon: <SettingsIcon className="w-5 h-5" /> },
   ];
 
@@ -90,7 +92,10 @@ export const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
       {/* Sidebar */}
       <aside className="h-screen w-64 fixed left-0 rtl:left-auto rtl:right-0 top-0 border-r rtl:border-r-0 rtl:border-l border-surface-container bg-surface flex flex-col py-8 z-50">
         <div className="px-6 mb-10">
-          <img src="/logo.svg" alt="Monar" className="h-9 w-auto" />
+          <picture>
+            <source srcSet="/logo-dark.svg" media="(prefers-color-scheme: dark)" />
+            <img src="/logo.svg" alt="Monar" className="h-9 w-auto" />
+          </picture>
         </div>
 
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto no-scrollbar">
@@ -155,6 +160,7 @@ export const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
               {activeTab === 'analytics'    && <Analytics />}
               {activeTab === 'qr'           && <QRManager restaurantId={restaurantId} />}
               {activeTab === 'promos'       && <PromoManager />}
+              {activeTab === 'cashier'      && <CashierPOS />}
               {activeTab === 'settings'     && <Settings />}
             </motion.div>
           </AnimatePresence>
