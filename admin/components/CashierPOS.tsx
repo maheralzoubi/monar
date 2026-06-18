@@ -3,7 +3,8 @@ import {
   ShoppingCart, Search, X, Plus, Minus, Trash2,
   CreditCard, Banknote, Smartphone, Tag, Check,
   Printer, AlertCircle, Percent, DollarSign,
-  MessageSquare, ChevronDown, RefreshCw, Receipt
+  MessageSquare, RefreshCw, Receipt, UtensilsCrossed,
+  Package
 } from 'lucide-react';
 import { authFetch } from '../../src/lib/auth';
 
@@ -27,41 +28,65 @@ const PAYMENT_STATUS: Record<PaymentMethod, string> = {
 };
 
 const ORDER_TYPES: { value: OrderType; label: string }[] = [
-  { value: 'DINE_IN', label: 'Dine In' },
+  { value: 'DINE_IN',  label: 'Dine In'  },
   { value: 'TAKEAWAY', label: 'Takeaway' },
-  { value: 'PICKUP', label: 'Pickup' },
+  { value: 'PICKUP',   label: 'Pickup'   },
   { value: 'DELIVERY', label: 'Delivery' },
 ];
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: React.ReactNode }[] = [
-  { value: 'CASH', label: 'Cash', icon: <Banknote className="w-4 h-4" /> },
-  { value: 'CARD', label: 'Card', icon: <CreditCard className="w-4 h-4" /> },
-  { value: 'CLIQ', label: 'CliQ', icon: <Smartphone className="w-4 h-4" /> },
-  { value: 'UNPAID', label: 'Unpaid', icon: <AlertCircle className="w-4 h-4" /> },
-  { value: 'PAY_LATER', label: 'Pay Later', icon: <RefreshCw className="w-4 h-4" /> },
+  { value: 'CASH',      label: 'Cash',      icon: <Banknote className="w-4 h-4" />    },
+  { value: 'CARD',      label: 'Card',      icon: <CreditCard className="w-4 h-4" />  },
+  { value: 'CLIQ',      label: 'CliQ',      icon: <Smartphone className="w-4 h-4" />  },
+  { value: 'UNPAID',    label: 'Unpaid',    icon: <AlertCircle className="w-4 h-4" /> },
+  { value: 'PAY_LATER', label: 'Pay Later', icon: <RefreshCw className="w-4 h-4" />   },
 ];
 
-const ProductCard: React.FC<{ item: MenuItem; onAdd: (item: MenuItem) => void }> = ({ item, onAdd }) => {
-  return (
-    <button
-      onClick={() => onAdd(item)}
-      className="group bg-surface-container rounded-xl overflow-hidden text-left hover:ring-2 hover:ring-primary/40 transition-all active:scale-95"
-    >
-      <div className="aspect-[4/3] overflow-hidden bg-surface">
-        {item.image
-          ? <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-          : <div className="w-full h-full flex items-center justify-center text-on-surface-variant opacity-20">
-              <ShoppingCart className="w-8 h-8" />
-            </div>
-        }
+// Category icons by name
+const CAT_ICONS: Record<string, string> = {
+  Starters: '🥗', Mains: '🍽️', Burgers: '🍔', Pizza: '🍕',
+  Pasta: '🍝', Salads: '🥙', Desserts: '🍰', Drinks: '🥤',
+  All: '⚡',
+};
+
+const ProductCard: React.FC<{
+  item: MenuItem;
+  cartQty: number;
+  onAdd: (item: MenuItem) => void;
+}> = ({ item, cartQty, onAdd }) => (
+  <button
+    onClick={() => onAdd(item)}
+    className="group relative bg-surface rounded-2xl overflow-hidden text-left hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 transition-all duration-200 active:scale-95 border border-surface-container"
+  >
+    {/* Cart badge */}
+    {cartQty > 0 && (
+      <span className="absolute top-2 right-2 z-10 w-6 h-6 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center shadow-md">
+        {cartQty}
+      </span>
+    )}
+
+    {/* Image */}
+    <div className="aspect-square overflow-hidden bg-surface-container">
+      {item.image
+        ? <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400" />
+        : <div className="w-full h-full flex items-center justify-center text-4xl opacity-30">
+            {CAT_ICONS[item.category] || '🍴'}
+          </div>
+      }
+    </div>
+
+    {/* Info */}
+    <div className="px-3 py-2.5">
+      <p className="text-sm font-semibold text-on-surface leading-tight line-clamp-1">{item.name}</p>
+      <div className="flex items-center justify-between mt-1.5">
+        <span className="text-base font-extrabold text-primary">${item.price.toFixed(2)}</span>
+        <span className="w-7 h-7 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+          <Plus className="w-4 h-4" />
+        </span>
       </div>
-      <div className="p-2.5">
-        <p className="text-xs font-semibold text-on-surface leading-tight line-clamp-2">{item.name}</p>
-        <p className="text-sm font-bold text-primary mt-1">${item.price.toFixed(2)}</p>
-      </div>
-    </button>
-  );
-}
+    </div>
+  </button>
+);
 
 interface CartItemRowProps {
   item: CartItem;
@@ -71,97 +96,104 @@ interface CartItemRowProps {
   noteOpen: boolean;
   onToggleNote: () => void;
 }
-const CartItemRow: React.FC<CartItemRowProps> = ({
-  item, onUpdateQty, onRemove, onNote, noteOpen, onToggleNote,
-}) => {
-  return (
-    <div className="bg-surface rounded-xl p-2.5 space-y-2">
-      <div className="flex items-start gap-2">
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-on-surface line-clamp-1">{item.name}</p>
-          <p className="text-xs text-on-surface-variant">${(item.price * item.quantity).toFixed(2)}</p>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <button onClick={() => onUpdateQty(item.id, -1)} className="w-6 h-6 rounded-lg bg-surface-container flex items-center justify-center hover:bg-primary/10 transition-colors">
-            <Minus className="w-3 h-3" />
-          </button>
-          <span className="text-xs font-bold w-5 text-center">{item.quantity}</span>
-          <button onClick={() => onUpdateQty(item.id, 1)} className="w-6 h-6 rounded-lg bg-surface-container flex items-center justify-center hover:bg-primary/10 transition-colors">
-            <Plus className="w-3 h-3" />
-          </button>
-          <button onClick={onToggleNote} className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${noteOpen || item.note ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant hover:bg-primary/10'}`}>
-            <MessageSquare className="w-3 h-3" />
-          </button>
-          <button onClick={() => onRemove(item.id)} className="w-6 h-6 rounded-lg bg-surface-container flex items-center justify-center hover:bg-red-100 hover:text-red-500 transition-colors">
-            <Trash2 className="w-3 h-3" />
-          </button>
-        </div>
+const CartItemRow: React.FC<CartItemRowProps> = ({ item, onUpdateQty, onRemove, onNote, noteOpen, onToggleNote }) => (
+  <div className="space-y-1.5">
+    <div className="flex items-center gap-2">
+      {/* Image thumbnail */}
+      <div className="w-10 h-10 rounded-xl overflow-hidden bg-surface-container shrink-0">
+        {item.image
+          ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+          : <div className="w-full h-full flex items-center justify-center text-lg">{CAT_ICONS[item.category] || '🍴'}</div>
+        }
       </div>
-      {noteOpen && (
-        <input
-          autoFocus
-          value={item.note}
-          onChange={e => onNote(item.id, e.target.value)}
-          placeholder="Item note..."
-          className="w-full px-2 py-1.5 text-xs bg-surface-container rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
-        />
-      )}
+      {/* Name + price */}
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-on-surface truncate">{item.name}</p>
+        <p className="text-xs text-on-surface-variant">${(item.price * item.quantity).toFixed(2)}</p>
+      </div>
+      {/* Controls */}
+      <div className="flex items-center gap-1 shrink-0">
+        <button onClick={() => onUpdateQty(item.id, -1)} className="w-6 h-6 rounded-lg bg-surface-container flex items-center justify-center hover:bg-primary/10 transition-colors text-on-surface-variant">
+          <Minus className="w-3 h-3" />
+        </button>
+        <span className="text-xs font-bold w-4 text-center tabular-nums">{item.quantity}</span>
+        <button onClick={() => onUpdateQty(item.id, 1)} className="w-6 h-6 rounded-lg bg-surface-container flex items-center justify-center hover:bg-primary/10 transition-colors text-on-surface-variant">
+          <Plus className="w-3 h-3" />
+        </button>
+        <button onClick={onToggleNote} className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${noteOpen || item.note ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant hover:bg-primary/10'}`}>
+          <MessageSquare className="w-3 h-3" />
+        </button>
+        <button onClick={() => onRemove(item.id)} className="w-6 h-6 rounded-lg bg-surface-container flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors text-on-surface-variant">
+          <Trash2 className="w-3 h-3" />
+        </button>
+      </div>
     </div>
-  );
-}
+    {noteOpen && (
+      <input
+        autoFocus
+        value={item.note}
+        onChange={e => onNote(item.id, e.target.value)}
+        placeholder="Item note..."
+        className="w-full px-2.5 py-1.5 text-xs bg-surface-container rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 ml-12"
+      />
+    )}
+  </div>
+);
 
-const ReceiptModal = ({ order, onClose, onPrint }: { order: any; onClose: () => void; onPrint: () => void }) => {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-surface rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
-        <div className="bg-primary/10 px-6 py-5 text-center">
-          <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Check className="w-6 h-6 text-primary" />
-          </div>
-          <h2 className="font-headline font-bold text-lg">Order Created!</h2>
-          <p className="text-xs text-on-surface-variant mt-1">#{order._id?.slice(-6).toUpperCase()}</p>
+const ReceiptModal: React.FC<{ order: any; onClose: () => void; onPrint: () => void }> = ({ order, onClose, onPrint }) => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+    <div className="bg-surface rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-br from-primary to-primary/70 px-6 py-6 text-white text-center">
+        <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+          <Check className="w-7 h-7 text-white" />
         </div>
+        <h2 className="font-headline font-extrabold text-xl">Order Created!</h2>
+        <p className="text-white/70 text-sm mt-1">#{order._id?.slice(-6).toUpperCase()}</p>
+      </div>
 
-        <div className="px-6 py-4 space-y-3 max-h-64 overflow-y-auto">
-          {order.items?.map((item: any, i: number) => (
-            <div key={i} className="flex justify-between text-sm">
-              <span className="text-on-surface-variant">{item.quantity}× {item.name}{item.note ? <span className="text-xs italic ml-1">({item.note})</span> : ''}</span>
-              <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
-            </div>
+      {/* Items */}
+      <div className="px-6 py-4 max-h-52 overflow-y-auto space-y-2">
+        {order.items?.map((item: any, i: number) => (
+          <div key={i} className="flex justify-between text-sm">
+            <span className="text-on-surface-variant">
+              {item.quantity}× {item.name}
+              {item.note ? <span className="text-xs italic text-on-surface-variant/60 ml-1">({item.note})</span> : ''}
+            </span>
+            <span className="font-semibold tabular-nums">${(item.price * item.quantity).toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Totals + meta */}
+      <div className="px-6 pb-2 border-t border-surface-container space-y-2 pt-3">
+        {order.discount > 0 && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span>Discount</span><span>-${order.discount.toFixed(2)}</span>
+          </div>
+        )}
+        <div className="flex justify-between font-extrabold text-lg">
+          <span>Total</span><span>${order.total.toFixed(2)}</span>
+        </div>
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {[order.payment_method, order.order_type, order.tableNumber && `Table ${order.tableNumber}`, order.cashier_name && `By ${order.cashier_name}`].filter(Boolean).map((tag, i) => (
+            <span key={i} className="bg-surface-container text-on-surface-variant text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">{tag}</span>
           ))}
         </div>
+      </div>
 
-        <div className="px-6 pb-4 space-y-2 border-t border-surface-container">
-          <div className="pt-3 space-y-1 text-sm">
-            {order.discount > 0 && (
-              <div className="flex justify-between text-on-surface-variant">
-                <span>Discount</span><span>-${order.discount.toFixed(2)}</span>
-              </div>
-            )}
-            <div className="flex justify-between font-bold text-base">
-              <span>Total</span><span>${order.total.toFixed(2)}</span>
-            </div>
-          </div>
-          <div className="flex gap-1 text-xs text-on-surface-variant flex-wrap">
-            <span className="bg-surface-container px-2 py-0.5 rounded-full">{order.payment_method || 'CASH'}</span>
-            <span className="bg-surface-container px-2 py-0.5 rounded-full">{order.order_type || 'DINE_IN'}</span>
-            {order.tableNumber && <span className="bg-surface-container px-2 py-0.5 rounded-full">Table {order.tableNumber}</span>}
-            {order.cashier_name && <span className="bg-surface-container px-2 py-0.5 rounded-full">By: {order.cashier_name}</span>}
-          </div>
-        </div>
-
-        <div className="px-6 pb-6 flex gap-3">
-          <button onClick={onPrint} className="flex-1 flex items-center justify-center gap-2 border border-surface-container rounded-xl py-2.5 text-sm font-semibold hover:bg-surface-container transition-colors">
-            <Printer className="w-4 h-4" /> Print
-          </button>
-          <button onClick={onClose} className="flex-1 btn-gradient text-white rounded-xl py-2.5 text-sm font-bold">
-            New Order
-          </button>
-        </div>
+      {/* Actions */}
+      <div className="px-6 pb-6 pt-3 flex gap-3">
+        <button onClick={onPrint} className="flex-1 flex items-center justify-center gap-2 border-2 border-surface-container rounded-2xl py-3 text-sm font-bold hover:bg-surface-container transition-colors">
+          <Printer className="w-4 h-4" /> Print
+        </button>
+        <button onClick={onClose} className="flex-1 btn-gradient text-white rounded-2xl py-3 text-sm font-extrabold shadow-lg shadow-primary/20">
+          New Order
+        </button>
       </div>
     </div>
-  );
-}
+  </div>
+);
 
 export const CashierPOS = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -193,20 +225,18 @@ export const CashierPOS = () => {
   const [receipt, setReceipt] = useState<any | null>(null);
 
   useEffect(() => {
-    const load = async () => {
-      const [catRes, menuRes, tableRes, meRes] = await Promise.all([
-        authFetch('/api/categories'),
-        authFetch('/api/menu'),
-        authFetch('/api/tables'),
-        authFetch('/api/auth/me'),
-      ]);
+    Promise.all([
+      authFetch('/api/categories'),
+      authFetch('/api/menu'),
+      authFetch('/api/tables'),
+      authFetch('/api/auth/me'),
+    ]).then(async ([catRes, menuRes, tableRes, meRes]) => {
       if (catRes.ok) setCategories(await catRes.json());
       if (menuRes.ok) setMenuItems(await menuRes.json());
       if (tableRes.ok) setTables(await tableRes.json());
       if (meRes.ok) setCurrentUser(await meRes.json());
       setLoading(false);
-    };
-    load();
+    });
   }, []);
 
   const filteredItems = useMemo(() => menuItems.filter(item => {
@@ -214,6 +244,18 @@ export const CashierPOS = () => {
     const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase()) || item.description.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   }), [menuItems, selectedCategory, search]);
+
+  const catCounts = useMemo(() => {
+    const map: Record<string, number> = { All: menuItems.length };
+    for (const item of menuItems) map[item.category] = (map[item.category] || 0) + 1;
+    return map;
+  }, [menuItems]);
+
+  const cartQtyMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const c of cart) map[c.id] = c.quantity;
+    return map;
+  }, [cart]);
 
   const addToCart = useCallback((item: MenuItem) => {
     setCart(prev => {
@@ -233,9 +275,7 @@ export const CashierPOS = () => {
   const subtotal = useMemo(() => cart.reduce((s, c) => s + c.price * c.quantity, 0), [cart]);
 
   const discountAmount = useMemo(() => {
-    if (discountMode === 'CODE' && promoResult) {
-      return promoResult.type === 'percentage' ? subtotal * (promoResult.discount / 100) : promoResult.discount;
-    }
+    if (discountMode === 'CODE' && promoResult) return promoResult.type === 'percentage' ? subtotal * (promoResult.discount / 100) : promoResult.discount;
     if (discountMode === 'PERCENTAGE') return subtotal * ((parseFloat(discountInput) || 0) / 100);
     if (discountMode === 'FIXED') return Math.min(parseFloat(discountInput) || 0, subtotal);
     return 0;
@@ -245,159 +285,140 @@ export const CashierPOS = () => {
 
   const validatePromo = async () => {
     if (!discountInput.trim()) return;
-    setPromoError('');
-    setPromoLoading(true);
+    setPromoError(''); setPromoLoading(true);
     try {
-      const res = await authFetch('/api/promos/validate', {
-        method: 'POST',
-        body: JSON.stringify({ code: discountInput.trim(), restaurantId: currentUser?.restaurantId }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setPromoResult(data);
-      } else {
-        setPromoError('Invalid or expired code');
-      }
+      const res = await authFetch('/api/promos/validate', { method: 'POST', body: JSON.stringify({ code: discountInput.trim(), restaurantId: currentUser?.restaurantId }) });
+      if (res.ok) setPromoResult(await res.json());
+      else setPromoError('Invalid or expired code');
     } finally { setPromoLoading(false); }
   };
 
   const createOrder = async () => {
     if (cart.length === 0) { setError('Add at least one item to the cart'); return; }
     if (orderType === 'DINE_IN' && !tableNumber) { setError('Please select a table for Dine-In orders'); return; }
-    setError('');
-    setCreating(true);
+    setError(''); setCreating(true);
     try {
       const payload: Record<string, any> = {
-        items: cart.map(({ note, ...item }) => ({ ...item, note })),
-        total,
-        discount: discountAmount,
+        items: cart.map(c => ({ ...c })),
+        total, discount: discountAmount,
         restaurantId: currentUser?.restaurantId,
         tableNumber: orderType === 'DINE_IN' ? tableNumber : undefined,
-        order_source: 'CASHIER_POS',
-        order_type: orderType,
-        payment_method: paymentMethod,
-        payment_status: PAYMENT_STATUS[paymentMethod],
-        cashier_id: currentUser?._id,
-        cashier_name: currentUser?.name || currentUser?.email,
+        order_source: 'CASHIER_POS', order_type: orderType,
+        payment_method: paymentMethod, payment_status: PAYMENT_STATUS[paymentMethod],
+        cashier_id: currentUser?._id, cashier_name: currentUser?.name || currentUser?.email,
         order_note: orderNote || undefined,
       };
-      if (discountMode === 'CODE' && promoResult) {
-        payload.promoCode = discountInput.trim();
-        payload.discount_type = 'CODE';
-        payload.discount_applied_by = currentUser?.name || currentUser?.email;
-      } else if (discountMode && discountAmount > 0) {
-        payload.discount_type = discountMode;
-        payload.discount_applied_by = currentUser?.name || currentUser?.email;
-      }
+      if (discountMode === 'CODE' && promoResult) { payload.promoCode = discountInput.trim(); payload.discount_type = 'CODE'; }
+      else if (discountMode && discountAmount > 0) { payload.discount_type = discountMode; payload.discount_applied_by = currentUser?.name || currentUser?.email; }
       const res = await authFetch('/api/orders', { method: 'POST', body: JSON.stringify(payload) });
-      if (res.ok) {
-        setReceipt(await res.json());
-        setCart([]);
-      } else {
-        const err = await res.json();
-        setError(err.message || 'Failed to create order');
-      }
+      if (res.ok) { setReceipt(await res.json()); setCart([]); }
+      else { const err = await res.json(); setError(err.message || 'Failed to create order'); }
     } catch { setError('Network error. Please try again.'); }
     finally { setCreating(false); }
   };
 
-  const resetOrder = () => {
-    setReceipt(null);
-    setOrderNote('');
-    setDiscountMode(null);
-    setDiscountInput('');
-    setPromoResult(null);
-    setPromoError('');
-    setTableId('');
-    setTableNumber('');
-    setError('');
-  };
+  const resetOrder = () => { setReceipt(null); setOrderNote(''); setDiscountMode(null); setDiscountInput(''); setPromoResult(null); setPromoError(''); setTableId(''); setTableNumber(''); setError(''); };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64 text-on-surface-variant">
-        <RefreshCw className="w-6 h-6 animate-spin mr-3" /> Loading POS...
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center h-64 text-on-surface-variant gap-3">
+      <RefreshCw className="w-5 h-5 animate-spin" /><span className="text-sm">Loading POS...</span>
+    </div>
+  );
+
+  const allCategories = ['All', ...categories.map(c => c.name)];
 
   return (
-    <div className="flex flex-col gap-4" style={{ height: 'calc(100vh - 13rem)' }}>
-      {/* Order Type Bar */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-semibold text-on-surface-variant mr-1">Order Type:</span>
-        {ORDER_TYPES.map(t => (
-          <button key={t.value} onClick={() => { setOrderType(t.value); setTableId(''); setTableNumber(''); }}
-            className={`px-4 py-1.5 rounded-xl text-sm font-semibold transition-all ${orderType === t.value ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-on-surface-variant hover:text-on-surface'}`}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+    <div className="flex flex-col gap-0 -mx-8 -mt-10" style={{ height: 'calc(100vh - 5rem)' }}>
 
-      {/* Main */}
-      <div className="flex gap-4 flex-1 min-h-0">
-        {/* LEFT: Product Browser */}
-        <div className="flex-1 flex flex-col gap-3 min-h-0">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search products..."
-              className="w-full pl-10 pr-4 py-2.5 bg-surface-container rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-            {search && (
-              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface">
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          {/* Category Tabs */}
-          <div className="flex gap-2 overflow-x-auto no-scrollbar">
-            {['All', ...categories.map(c => c.name)].map(cat => (
-              <button key={cat} onClick={() => setSelectedCategory(cat)}
-                className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${selectedCategory === cat ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-on-surface-variant hover:text-on-surface'}`}>
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Product Grid */}
-          <div className="flex-1 overflow-y-auto grid grid-cols-3 gap-3 content-start pr-1">
-            {filteredItems.map(item => (
-              <ProductCard key={item._id} item={item} onAdd={addToCart} />
-            ))}
-            {filteredItems.length === 0 && (
-              <div className="col-span-3 flex flex-col items-center justify-center h-40 text-on-surface-variant gap-2">
-                <Search className="w-8 h-8 opacity-20" />
-                <p className="text-sm">No products found</p>
-              </div>
-            )}
-          </div>
+      {/* ── TOP BAR ── */}
+      <div className="flex items-center gap-3 px-6 py-3 border-b border-surface-container bg-surface z-10 shrink-0">
+        {/* Search */}
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+          <input
+            value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search menu..."
+            className="w-full pl-9 pr-8 py-2 bg-surface-container rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+          {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"><X className="w-3.5 h-3.5" /></button>}
         </div>
 
-        {/* RIGHT: Cart */}
-        <div className="w-[360px] flex flex-col bg-surface-container rounded-2xl overflow-hidden shrink-0">
+        <div className="h-5 w-px bg-surface-container" />
+
+        {/* Order Type */}
+        <div className="flex items-center gap-1.5">
+          {ORDER_TYPES.map(t => (
+            <button key={t.value} onClick={() => { setOrderType(t.value); setTableId(''); setTableNumber(''); }}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${orderType === t.value ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-on-surface-variant hover:text-on-surface'}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── MAIN ── */}
+      <div className="flex flex-1 min-h-0">
+
+        {/* ── CATEGORY SIDEBAR ── */}
+        <div className="w-48 shrink-0 border-r border-surface-container overflow-y-auto bg-surface py-3">
+          {allCategories.map(cat => {
+            const active = selectedCategory === cat;
+            return (
+              <button key={cat} onClick={() => setSelectedCategory(cat)}
+                className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-left transition-all ${active ? 'bg-primary/10 text-primary border-r-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'}`}>
+                <span className="text-lg leading-none">{CAT_ICONS[cat] || '🍴'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs font-bold truncate ${active ? 'text-primary' : ''}`}>{cat}</p>
+                  <p className="text-[10px] text-on-surface-variant">{catCounts[cat] ?? 0} items</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── PRODUCT GRID ── */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {filteredItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-on-surface-variant gap-3">
+              <Package className="w-12 h-12 opacity-20" />
+              <p className="text-sm font-medium">No products found</p>
+            </div>
+          ) : (
+            <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
+              {filteredItems.map(item => (
+                <ProductCard key={item._id} item={item} cartQty={cartQtyMap[item._id] || 0} onAdd={addToCart} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── CART PANEL ── */}
+        <div className="w-80 shrink-0 border-l border-surface-container flex flex-col bg-surface">
+
           {/* Cart Header */}
-          <div className="px-4 py-3 border-b border-black/5 flex items-center justify-between">
+          <div className="px-4 py-3 border-b border-surface-container flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
               <ShoppingCart className="w-4 h-4 text-primary" />
-              <span className="font-bold text-sm font-headline">Cart</span>
-              {cart.length > 0 && <span className="bg-primary text-white text-xs px-1.5 py-0.5 rounded-full font-bold">{cart.reduce((s, c) => s + c.quantity, 0)}</span>}
+              <span className="font-bold text-sm">Cart</span>
+              {cart.length > 0 && (
+                <span className="bg-primary text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {cart.reduce((s, c) => s + c.quantity, 0)}
+                </span>
+              )}
             </div>
             {cart.length > 0 && (
-              <button onClick={() => setCart([])} className="text-xs text-on-surface-variant hover:text-red-500 transition-colors">Clear all</button>
+              <button onClick={() => setCart([])} className="text-[11px] text-on-surface-variant hover:text-red-500 transition-colors font-medium">
+                Clear
+              </button>
             )}
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2 min-h-0">
+          <div className="flex-1 overflow-y-auto px-3 py-2 space-y-3 min-h-0">
             {cart.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-32 text-on-surface-variant gap-2">
-                <ShoppingCart className="w-8 h-8 opacity-20" />
-                <p className="text-xs">Tap a product to add it</p>
+                <UtensilsCrossed className="w-8 h-8 opacity-20" />
+                <p className="text-xs text-center">Tap any product<br/>to add to cart</p>
               </div>
             ) : (
               cart.map(item => (
@@ -410,101 +431,99 @@ export const CashierPOS = () => {
             )}
           </div>
 
-          {/* Order Details */}
-          <div className="border-t border-black/5 px-3 py-3 space-y-2.5">
+          {/* Order Settings */}
+          <div className="border-t border-surface-container px-3 py-3 space-y-2.5 shrink-0">
             {/* Table */}
             {orderType === 'DINE_IN' && (
               <select value={tableId}
                 onChange={e => { const t = tables.find(t => t._id === e.target.value); setTableId(e.target.value); setTableNumber(t?.name || ''); }}
-                className="w-full px-3 py-2 bg-surface rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-                <option value="">Select table *</option>
+                className="w-full px-3 py-2 bg-surface-container rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20">
+                <option value="">— Select table *</option>
                 {tables.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
               </select>
             )}
 
             {/* Order Note */}
-            <textarea
-              value={orderNote}
-              onChange={e => setOrderNote(e.target.value)}
+            <input
+              value={orderNote} onChange={e => setOrderNote(e.target.value)}
               placeholder="Order note..."
-              rows={1}
-              className="w-full px-3 py-2 bg-surface rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full px-3 py-2 bg-surface-container rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
 
             {/* Discount */}
-            <div className="space-y-2">
-              <div className="flex gap-1">
-                {([['CODE', 'Promo', <Tag className="w-3 h-3" />], ['PERCENTAGE', '%', <Percent className="w-3 h-3" />], ['FIXED', 'Fixed', <DollarSign className="w-3 h-3" />]] as [DiscountMode, string, React.ReactNode][]).map(([mode, label, icon]) => (
+            <div className="space-y-1.5">
+              <div className="grid grid-cols-3 gap-1">
+                {(['CODE', 'PERCENTAGE', 'FIXED'] as DiscountMode[]).map((mode, i) => (
                   <button key={mode} onClick={() => { setDiscountMode(discountMode === mode ? null : mode); setDiscountInput(''); setPromoResult(null); setPromoError(''); }}
-                    className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${discountMode === mode ? 'bg-primary text-white' : 'bg-surface text-on-surface-variant hover:text-on-surface'}`}>
-                    {icon}{label}
+                    className={`flex items-center justify-center gap-1 py-1.5 rounded-xl text-[10px] font-bold transition-all ${discountMode === mode ? 'bg-primary text-white' : 'bg-surface-container text-on-surface-variant hover:text-on-surface'}`}>
+                    {i === 0 ? <Tag className="w-3 h-3" /> : i === 1 ? <Percent className="w-3 h-3" /> : <DollarSign className="w-3 h-3" />}
+                    {i === 0 ? 'Code' : i === 1 ? '%' : 'Fixed'}
                   </button>
                 ))}
               </div>
               {discountMode && (
-                <div className="flex gap-1">
-                  <input
-                    value={discountInput}
-                    onChange={e => { setDiscountInput(e.target.value); setPromoResult(null); setPromoError(''); }}
-                    placeholder={discountMode === 'CODE' ? 'Enter promo code' : discountMode === 'PERCENTAGE' ? 'e.g. 10' : 'e.g. 5.00'}
-                    className="flex-1 px-3 py-2 bg-surface rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                <div className="flex gap-1.5">
+                  <input value={discountInput} onChange={e => { setDiscountInput(e.target.value); setPromoResult(null); setPromoError(''); }}
+                    placeholder={discountMode === 'CODE' ? 'Promo code' : discountMode === 'PERCENTAGE' ? 'e.g. 10' : 'e.g. 5.00'}
+                    className="flex-1 px-2.5 py-1.5 bg-surface-container rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                   {discountMode === 'CODE' && (
                     <button onClick={validatePromo} disabled={promoLoading || !discountInput.trim()}
-                      className="px-3 py-2 bg-primary text-white rounded-xl text-xs font-bold disabled:opacity-50 hover:opacity-90 transition-opacity">
-                      {promoLoading ? '...' : 'Apply'}
+                      className="px-3 bg-primary text-white rounded-xl text-xs font-bold disabled:opacity-50">
+                      {promoLoading ? '…' : 'Apply'}
                     </button>
                   )}
                 </div>
               )}
-              {promoResult && <p className="text-xs text-green-600 flex items-center gap-1"><Check className="w-3 h-3" /> Code applied: -{discountAmount.toFixed(2)}</p>}
-              {promoError && <p className="text-xs text-red-500">{promoError}</p>}
+              {promoResult && <p className="text-[10px] text-green-600 flex items-center gap-1"><Check className="w-3 h-3" /> Applied — save ${discountAmount.toFixed(2)}</p>}
+              {promoError && <p className="text-[10px] text-red-500">{promoError}</p>}
             </div>
 
             {/* Payment Methods */}
             <div className="grid grid-cols-5 gap-1">
               {PAYMENT_METHODS.map(pm => (
                 <button key={pm.value} onClick={() => setPaymentMethod(pm.value)}
-                  className={`flex flex-col items-center gap-0.5 py-2 rounded-xl text-xs font-semibold transition-all ${paymentMethod === pm.value ? 'bg-primary text-white shadow-sm' : 'bg-surface text-on-surface-variant hover:text-on-surface'}`}>
+                  className={`flex flex-col items-center gap-0.5 py-2 rounded-xl transition-all ${paymentMethod === pm.value ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-on-surface-variant hover:text-on-surface'}`}>
                   {pm.icon}
-                  <span style={{ fontSize: '10px' }}>{pm.label}</span>
+                  <span style={{ fontSize: '9px' }} className="font-bold">{pm.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Totals + CTA */}
-          <div className="px-4 pb-4 pt-3 border-t border-black/5 space-y-3">
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between text-on-surface-variant">
-                <span>Subtotal</span><span>${subtotal.toFixed(2)}</span>
+          <div className="px-4 pb-4 pt-2 border-t border-surface-container space-y-2.5 shrink-0">
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs text-on-surface-variant">
+                <span>Subtotal</span><span className="tabular-nums">${subtotal.toFixed(2)}</span>
               </div>
               {discountAmount > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Discount</span><span>-${discountAmount.toFixed(2)}</span>
+                <div className="flex justify-between text-xs text-green-600 font-medium">
+                  <span>Discount</span><span className="tabular-nums">-${discountAmount.toFixed(2)}</span>
                 </div>
               )}
-              <div className="flex justify-between font-bold text-base">
-                <span>Total</span><span>${total.toFixed(2)}</span>
+              <div className="flex justify-between font-extrabold text-base pt-0.5">
+                <span>Total</span><span className="tabular-nums">${total.toFixed(2)}</span>
               </div>
             </div>
 
             {error && (
-              <p className="text-red-500 text-xs flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" />{error}
+              <p className="text-red-500 text-[11px] flex items-start gap-1">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />{error}
               </p>
             )}
 
             <button onClick={createOrder} disabled={creating || cart.length === 0}
-              className="w-full btn-gradient text-white py-3 rounded-xl font-bold text-sm disabled:opacity-40 transition-opacity flex items-center justify-center gap-2">
-              {creating ? <><RefreshCw className="w-4 h-4 animate-spin" /> Creating...</>
-                : <><Receipt className="w-4 h-4" /> Create Order · ${total.toFixed(2)}</>}
+              className="w-full btn-gradient text-white py-3.5 rounded-2xl font-extrabold text-sm disabled:opacity-40 flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-opacity">
+              {creating
+                ? <><RefreshCw className="w-4 h-4 animate-spin" /> Creating...</>
+                : <><Receipt className="w-4 h-4" /> Create Order · ${total.toFixed(2)}</>
+              }
             </button>
           </div>
         </div>
       </div>
 
-      {/* Receipt Modal */}
       {receipt && <ReceiptModal order={receipt} onClose={resetOrder} onPrint={() => window.print()} />}
     </div>
   );
