@@ -1,45 +1,43 @@
-/* ── Admin-specific theme overrides ───────────────────────────────────────
-   Surfaces are light; sidebar uses #303942 explicitly in components.
-   Primary = #FE5722 | Secondary/Dark = #303942
+/* ── Admin theme: #FE5722 orange + #303942 dark ───────────────────────────
+   Surfaces use the #303942 dark scale.
+   Primary accent = #FE5722.
 ────────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Surfaces: clean white / light-gray scale */
-  --color-surface:                   #ffffff;
-  --color-surface-dim:               #eef0f3;
-  --color-surface-bright:            #ffffff;
-  --color-surface-container-lowest:  #ffffff;
-  --color-surface-container-low:     #f5f6f8;
-  --color-surface-container:         #eef0f3;
-  --color-surface-container-high:    #e5e8ed;
-  --color-surface-container-highest: #dce0e6;
+  /* Surfaces — dark #303942 scale */
+  --color-surface:                   #303942;
+  --color-surface-dim:               #252c36;
+  --color-surface-bright:            #3f4a5c;
+  --color-surface-container-lowest:  #1e242e;
+  --color-surface-container-low:     #272e39;
+  --color-surface-container:         #353e4e;
+  --color-surface-container-high:    #3e4859;
+  --color-surface-container-highest: #485264;
 
   /* Text */
-  --color-on-surface:         #303942;
-  --color-on-surface-variant: #606878;
+  --color-on-surface:         #ffffff;
+  --color-on-surface-variant: #9aa3b2;
 
   /* Brand */
   --color-primary:           #FE5722;
   --color-primary-container: #D94A1C;
   --color-on-primary:        #ffffff;
 
-  /* Remove tertiary — map to brand dark */
+  /* Tertiary → brand dark */
   --color-tertiary:           #303942;
   --color-tertiary-container: #3f4a5c;
 
   /* Borders */
-  --color-outline:         #c8cdd5;
-  --color-outline-variant: #e2e5ea;
+  --color-outline:         #5a6475;
+  --color-outline-variant: #404a5a;
 
   /* Error */
-  --color-error: #d32f2f;
+  --color-error: #ff6b6b;
 }
 
-/* btn-gradient in admin: orange gradient */
 .btn-gradient {
   background: linear-gradient(135deg, #FE5722 0%, #D94A1C 100%) !important;
 }
 
-/* text-gradient */
 .text-gradient {
   background: linear-gradient(135deg, #FE5722, #D94A1C) !important;
   -webkit-background-clip: text !important;

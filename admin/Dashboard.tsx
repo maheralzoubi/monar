@@ -123,7 +123,7 @@ export const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
 
       {/* Main */}
       <main className="flex-1 ml-64 rtl:ml-0 rtl:mr-64 min-h-screen">
-        <header className="w-full sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-surface-container flex justify-between items-center px-8 py-4">
+        <header className="w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-surface-container flex justify-between items-center px-8 py-4">
           <span className="text-xl font-bold font-headline">{t('dashboard.headerTitle')}</span>
           <div className="flex items-center gap-3">
             <div className="text-end hidden xl:block">
