@@ -78,7 +78,8 @@ export const StatusScreen = ({ orderId }: { orderId: string | null }) => {
 
   useEffect(() => {
     if (!orderId) return;
-    const socket = io();
+    const socketUrl = import.meta.env.VITE_API_URL || window.location.origin;
+    const socket = io(socketUrl, { path: '/socket.io' });
     socket.emit('order:join', orderId);
     socket.on('order:status', ({ id, status }: { id: string; status: string }) => {
       if (id !== orderId) return;

@@ -5,8 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Monar',
   webDir: 'dist',
   server: {
-    androidScheme: 'http',   // avoids mixed-content block when API is plain HTTP
-    cleartext: true,          // allow HTTP traffic to local backend
+    androidScheme: 'https',
   },
 };
 

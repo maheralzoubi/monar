@@ -111,7 +111,8 @@ export default function App() {
   // Join restaurant socket room and listen for live branding updates
   useEffect(() => {
     if (!context?.restaurantId) return;
-    const socket = socketIO();
+    const socketUrl = import.meta.env.VITE_API_URL || window.location.origin;
+    const socket = socketIO(socketUrl, { path: '/socket.io' });
     socketRef.current = socket;
     socket.emit('restaurant:join', context.restaurantId);
     socket.on('branding:updated', ({ primaryColor: color, logo }: { primaryColor: string; logo?: string }) => {
