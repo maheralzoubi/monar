@@ -33,9 +33,9 @@ const FOOD_CATEGORIES = [
 ];
 
 const PROMOS = [
-  { label: 'Free Pickup',   sub: 'All orders this week',  emoji: '🛍️', from: 'from-primary to-primary/70' },
-  { label: '20% Off Mains', sub: 'On orders over $30',    emoji: '🍽️', from: 'from-amber-500 to-orange-400' },
-  { label: 'New Arrivals',  sub: 'Try our latest menu',   emoji: '✨', from: 'from-violet-500 to-indigo-400' },
+  { label: 'Free Pickup',   sub: 'All orders this week',  emoji: '🛍️', from: 'from-primary to-primary-container' },
+  { label: '20% Off Mains', sub: 'On orders over $30',    emoji: '🍽️', from: 'from-primary to-primary-container' },
+  { label: 'New Arrivals',  sub: 'Try our latest menu',   emoji: '✨', from: 'from-primary to-primary-container' },
 ];
 
 const PREP_TIMES = ['10–15 min', '15–20 min', '20–25 min', '25–30 min'];
@@ -82,7 +82,7 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking }: Props) => {
   const firstName = '';
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-4">
+    <div className="bg-surface min-h-screen pb-4">
       {/* Sticky Header */}
       <div className="bg-surface px-5 pt-12 pb-4 sticky top-0 z-10 shadow-sm">
         <div className="flex items-center justify-between mb-4">
@@ -155,7 +155,7 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking }: Props) => {
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-[10px] font-bold text-on-surface-variant uppercase">#{order._id?.slice(-4).toUpperCase()}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      order.status === 'Delivered' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                      order.status === 'Delivered' ? 'bg-primary/20 text-primary' : 'bg-surface-container-high text-on-surface-variant'
                     }`}>{order.status}</span>
                   </div>
                   <p className="text-xs font-bold truncate">{order.items?.slice(0,2).map((i: any) => i.name).join(', ')}</p>
@@ -200,7 +200,7 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking }: Props) => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-extrabold text-sm truncate">{r.name}</p>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${isOpen ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${isOpen ? 'bg-primary/20 text-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
                           {isOpen ? 'Open' : 'Closed'}
                         </span>
                       </div>
@@ -213,7 +213,7 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking }: Props) => {
                       <div className="flex items-center gap-3 mt-1.5">
                         {r.averageRating > 0 && (
                           <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                            <Star className="w-3 h-3 text-primary fill-primary" />
                             <span className="text-xs font-bold">{r.averageRating}</span>
                           </div>
                         )}

@@ -71,7 +71,7 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-surface">
       {/* Header */}
       <div className="bg-surface px-5 pt-12 pb-4 shadow-sm shrink-0">
         <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
                           className={`w-7 h-7 rounded-lg flex items-center justify-center active:scale-90 transition-colors ${item.note || activeNote === item.id ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'}`}>
                           <MessageSquare className="w-3.5 h-3.5" />
                         </button>
-                        <button onClick={() => removeItem(item.id)} className="w-7 h-7 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center active:scale-90 hover:bg-red-50 hover:text-red-500 transition-colors">
+                        <button onClick={() => removeItem(item.id)} className="w-7 h-7 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center active:scale-90 hover:bg-surface-container-high transition-colors">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>

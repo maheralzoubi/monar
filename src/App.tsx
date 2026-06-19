@@ -45,7 +45,7 @@ export default function App() {
 
   return (
     <CartProvider>
-      <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-gray-50 flex flex-col select-none">
+      <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-surface flex flex-col select-none">
         {/* Tab Content */}
         <div className="flex-1 overflow-y-auto" style={{ paddingBottom: '5rem' }}>
           <AnimatePresence mode="wait">
@@ -72,7 +72,7 @@ export default function App() {
         {/* Full-screen Overlays */}
         <AnimatePresence>
           {overlay?.type === 'restaurant' && (
-            <motion.div key="restaurant" className="fixed inset-0 z-40 bg-gray-50" {...slideUp}>
+            <motion.div key="restaurant" className="fixed inset-0 z-40 bg-surface" {...slideUp}>
               <RestaurantScreen
                 restaurantId={overlay.id}
                 restaurantName={overlay.name}

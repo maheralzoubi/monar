@@ -6,7 +6,7 @@ export const ProfileScreen = () => {
   const { i18n } = useTranslation();
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-surface min-h-screen">
       {/* Header */}
       <div className="bg-surface px-5 pt-12 pb-6">
         <div className="flex items-center gap-4">

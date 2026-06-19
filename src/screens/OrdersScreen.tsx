@@ -9,11 +9,11 @@ interface Props {
 type Tab = 'current' | 'past';
 
 const STATUS_COLORS: Record<string, string> = {
-  Pending:   'bg-amber-100 text-amber-700',
-  Preparing: 'bg-primary/10 text-primary',
-  Ready:     'bg-blue-100 text-blue-700',
-  Delivered: 'bg-emerald-100 text-emerald-700',
-  Cancelled: 'bg-red-100 text-red-600',
+  Pending:   'bg-surface-container-high text-on-surface-variant',
+  Preparing: 'bg-primary/20 text-primary',
+  Ready:     'bg-primary/30 text-primary',
+  Delivered: 'bg-primary/20 text-primary',
+  Cancelled: 'bg-surface-container-high text-on-surface-variant',
 };
 
 const ACTIVE_STATUSES = ['Pending', 'Preparing', 'Ready'];
@@ -38,7 +38,7 @@ export const OrdersScreen = ({ onOpenTracking }: Props) => {
   const displayOrders = tab === 'current' ? currentOrders : pastOrders;
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-surface min-h-screen">
       <div className="bg-surface px-5 pt-12 pb-4 sticky top-0 z-10 shadow-sm">
         <h1 className="text-xl font-extrabold font-headline mb-4">My Orders</h1>
         <div className="flex gap-1 bg-surface-container rounded-2xl p-1">
@@ -81,7 +81,7 @@ export const OrdersScreen = ({ onOpenTracking }: Props) => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${STATUS_COLORS[order.status] || 'bg-surface-container-high text-on-surface-variant'}`}>
                         {order.status}
                       </span>
                       <ChevronRight className="w-4 h-4 text-on-surface-variant/40" />

@@ -69,16 +69,16 @@ export const OrderTrackingScreen = ({ orderId, onClose, onViewOrders }: Props) =
               key={order.status}
               initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
               className={`rounded-2xl p-5 text-center ${
-                isCompleted ? 'bg-emerald-50 border border-emerald-200' :
-                isCancelled ? 'bg-red-50 border border-red-200' :
-                'bg-primary/5 border border-primary/20'
+                isCompleted ? 'bg-primary/10 border border-primary/30' :
+                isCancelled ? 'bg-surface-container border border-surface-container-high' :
+                'bg-primary/10 border border-primary/30'
               }`}
             >
               <div className={`text-4xl mb-2 ${isCompleted ? '' : 'animate-pulse'}`}>
                 {isCompleted ? '✅' : isCancelled ? '❌' : '🍳'}
               </div>
               <p className={`text-lg font-extrabold ${
-                isCompleted ? 'text-emerald-700' : isCancelled ? 'text-red-600' : 'text-primary'
+                isCompleted ? 'text-primary' : isCancelled ? 'text-on-surface-variant' : 'text-primary'
               }`}>
                 {isCancelled ? 'Order Cancelled' : STATUS_STEPS[activeIdx]?.label || order.status}
               </p>
@@ -98,14 +98,14 @@ export const OrderTrackingScreen = ({ orderId, onClose, onViewOrders }: Props) =
                       <div key={step.key} className="flex items-start gap-4">
                         <div className="flex flex-col items-center">
                           <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-                            done ? 'bg-emerald-500 text-white' :
+                            done ? 'bg-primary text-white' :
                             active ? 'bg-primary text-white shadow-md shadow-primary/30' :
                             'bg-surface text-on-surface-variant/40'
                           }`}>
                             {done ? <CheckCircle2 className="w-5 h-5" /> : step.icon}
                           </div>
                           {idx < STATUS_STEPS.length - 1 && (
-                            <div className={`w-0.5 h-8 mt-1 ${done ? 'bg-emerald-300' : 'bg-surface-container'}`} />
+                            <div className={`w-0.5 h-8 mt-1 ${done ? 'bg-primary/50' : 'bg-surface-container-high'}`} />
                           )}
                         </div>
                         <div className="flex-1 pt-1.5 pb-6">

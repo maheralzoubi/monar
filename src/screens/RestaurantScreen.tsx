@@ -67,7 +67,7 @@ export const RestaurantScreen = ({ restaurantId, restaurantName, restaurantLogo,
   const showCart = cartRestId === restaurantId && itemCount > 0;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-surface">
       {/* Sticky Header */}
       <div className={`bg-surface z-20 transition-all duration-300 ${headerCollapsed ? 'shadow-md' : ''}`}>
         {/* Top bar */}
