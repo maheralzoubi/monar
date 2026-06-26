@@ -30,8 +30,9 @@ router.get('/restaurants/public', async (_req: Request, res: Response, next: Nex
     const restaurants = await Restaurant.find().select('name logo address status cuisine openTime closeTime prepTime').sort({ name: 1 });
 
     const toMins = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-    const now = new Date();
-    const nowMins = now.getHours() * 60 + now.getMinutes();
+    // Use Jordan local time (Asia/Amman = UTC+3) so openTime/closeTime set by admins match correctly
+    const nowJordan = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Amman', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date());
+    const nowMins = toMins(nowJordan);
 
     const results = await Promise.all(restaurants.map(async (r) => {
       const reviews = await Review.find({ restaurantId: r._id }).select('rating');
