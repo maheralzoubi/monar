@@ -29,8 +29,14 @@ export default function App() {
   const { i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
+  const [splash, setSplash] = useState(true);
   const [mainTab, setMainTab] = useState<MainTab>('home');
   const [overlay, setOverlay] = useState<Overlay>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSplash(false), 1000);
+    return () => clearTimeout(t);
+  }, []);
 
   const { context: qrContext, loading: qrLoading } = useRestaurant();
 
@@ -56,6 +62,23 @@ export default function App() {
 
   return (
     <CartProvider>
+      <AnimatePresence>
+        {splash && (
+          <motion.div
+            key="splash"
+            className="fixed inset-0 z-[100] bg-surface flex items-center justify-center"
+            exit={{ opacity: 0, transition: { duration: 0.4 } }}
+          >
+            <motion.img
+              src="/logo-dark.svg"
+              alt="Monar"
+              className="h-14 w-auto"
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1, transition: { duration: 0.35 } }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-surface flex flex-col select-none">
         {/* Tab Content */}
         <div className="flex-1 overflow-y-auto" style={{ paddingBottom: '5rem' }}>
