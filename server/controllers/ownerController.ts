@@ -49,7 +49,7 @@ export const getRestaurants = async (req: Request, res: Response, next: NextFunc
 
 export const createRestaurant = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, logo, contactEmail, contactPhone, address, adminName, adminEmail, adminPassword } = req.body;
+    const { name, logo, contactEmail, contactPhone, address, cuisine, adminName, adminEmail, adminPassword } = req.body;
     if (!name || !adminEmail || !adminPassword || !adminName) {
       res.status(400).json({ message: 'name, adminName, adminEmail, adminPassword are required' });
       return;
@@ -74,6 +74,7 @@ export const createRestaurant = async (req: Request, res: Response, next: NextFu
 
     const restaurant = await Restaurant.create({
       name, logo, contactEmail, contactPhone, address,
+      cuisine: Array.isArray(cuisine) ? cuisine : [],
       adminId: '000000000000000000000000',
       ownerId: isSuperAdmin(req) ? undefined : callerId(req),
     });

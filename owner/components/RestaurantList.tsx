@@ -25,8 +25,14 @@ interface Subscription {
 
 interface Props { onSelect: (r: Restaurant) => void; }
 
+const CUISINE_OPTIONS = [
+  'Coffee', 'Burgers', 'Pizza', 'Pasta', 'Shawarma',
+  'Salads', 'Desserts', 'Drinks', 'Breakfast', 'Chicken', 'Healthy',
+];
+
 const emptyForm = () => ({
   name: '', logo: '', contactEmail: '', contactPhone: '', address: '',
+  cuisine: [] as string[],
   adminName: '', adminEmail: '', adminPassword: '',
 });
 
@@ -294,6 +300,23 @@ export const RestaurantList = ({ onSelect }: Props) => {
                         className="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
                     </div>
                   ))}
+                </div>
+
+                {/* Cuisine types */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Cuisine Types</label>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {CUISINE_OPTIONS.map(c => {
+                      const active = form.cuisine.includes(c);
+                      return (
+                        <button key={c} type="button"
+                          onClick={() => setForm(f => ({ ...f, cuisine: active ? f.cuisine.filter(x => x !== c) : [...f.cuisine, c] }))}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${active ? 'bg-primary text-white' : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant'}`}>
+                          {c}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div>

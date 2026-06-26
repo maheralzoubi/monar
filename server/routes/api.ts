@@ -27,14 +27,14 @@ const router = Router();
 // All restaurants — public (for restaurant discovery list)
 router.get('/restaurants/public', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const restaurants = await Restaurant.find().select('name logo address status').sort({ name: 1 });
+    const restaurants = await Restaurant.find().select('name logo address status cuisine').sort({ name: 1 });
 
     const results = await Promise.all(restaurants.map(async (r) => {
       const reviews = await Review.find({ restaurantId: r._id }).select('rating');
       const averageRating = reviews.length > 0
         ? parseFloat((reviews.reduce((s, rv) => s + rv.rating, 0) / reviews.length).toFixed(1))
         : 0;
-      return { _id: r._id, name: r.name, logo: r.logo, address: r.address, status: r.status, averageRating };
+      return { _id: r._id, name: r.name, logo: r.logo, address: r.address, status: r.status, cuisine: r.cuisine ?? [], averageRating };
     }));
 
     res.json(results);

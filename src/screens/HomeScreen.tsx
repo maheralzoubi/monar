@@ -9,6 +9,7 @@ interface Restaurant {
   logo?: string;
   address?: string;
   status: string;
+  cuisine: string[];
   averageRating: number;
 }
 
@@ -84,8 +85,9 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking }: Props) => {
 
   const filteredRestaurants = restaurants.filter(r => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return true;
-    return r.name.toLowerCase().includes(q) || r.address?.toLowerCase().includes(q);
+    const matchSearch = !q || r.name.toLowerCase().includes(q) || r.address?.toLowerCase().includes(q);
+    const matchCategory = selectedCategory === 'All' || (r.cuisine ?? []).includes(selectedCategory);
+    return matchSearch && matchCategory;
   });
 
   return (
