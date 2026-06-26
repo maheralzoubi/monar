@@ -3,6 +3,7 @@ import { X, CheckCircle2, Clock, ChefHat, Package, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { io } from 'socket.io-client';
+import { useFmt } from '../hooks/useCurrency';
 
 interface Props {
   orderId: string;
@@ -12,6 +13,7 @@ interface Props {
 
 export const OrderTrackingScreen = ({ orderId, onClose, onViewOrders }: Props) => {
   const { t } = useTranslation();
+  const fmt = useFmt();
   const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -118,12 +120,12 @@ export const OrderTrackingScreen = ({ orderId, onClose, onViewOrders }: Props) =
               {order.items?.map((item: any, idx: number) => (
                 <div key={idx} className={`px-4 py-3 flex justify-between text-sm ${idx < order.items.length - 1 ? 'border-b border-surface-container-high' : ''}`}>
                   <span className="text-on-surface-variant">{item.quantity}× {item.name}</span>
-                  <span className="font-bold tabular-nums">${(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-bold tabular-nums">{fmt(item.price * item.quantity)}</span>
                 </div>
               ))}
               <div className="px-4 py-3 border-t border-surface-container-high flex justify-between font-extrabold">
                 <span>{t('pickup.total')}</span>
-                <span className="text-primary">${order.total?.toFixed(2)}</span>
+                <span className="text-primary">{fmt(order.total ?? 0)}</span>
               </div>
             </div>
 

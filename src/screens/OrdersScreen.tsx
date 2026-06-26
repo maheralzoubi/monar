@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Package, ChevronRight, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { useFmt } from '../hooks/useCurrency';
 import { io } from 'socket.io-client';
 
 interface Props {
@@ -22,6 +23,7 @@ const ACTIVE_STATUSES = ['Pending', 'Preparing', 'Ready'];
 
 export const OrdersScreen = ({ onOpenTracking }: Props) => {
   const { t, i18n } = useTranslation();
+  const fmt = useFmt();
   const isRTL = i18n.language === 'ar';
 
   const [tab, setTab] = useState<Tab>('current');
@@ -113,7 +115,7 @@ export const OrdersScreen = ({ onOpenTracking }: Props) => {
                     <span className="text-xs text-on-surface-variant">
                       {order.items?.length} {order.items?.length !== 1 ? t('pickup.items') : t('pickup.item')}
                     </span>
-                    <span className="font-extrabold text-sm text-primary">${order.total?.toFixed(2)}</span>
+                    <span className="font-extrabold text-sm text-primary">{fmt(order.total ?? 0)}</span>
                   </div>
                 </motion.button>
               ))}

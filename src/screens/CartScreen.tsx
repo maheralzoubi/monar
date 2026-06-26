@@ -372,7 +372,7 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
                   {items.map(item => (
                     <div key={item.id} className="flex justify-between text-xs text-on-surface-variant">
                       <span>{item.quantity}× {item.name}</span>
-                      <span className="tabular-nums">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="tabular-nums">{formatCurrency(item.price * item.quantity, currency)}</span>
                     </div>
                   ))}
                   {appliedPromo && (

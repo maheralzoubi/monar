@@ -1,4 +1,5 @@
 import { useState, useEffect, memo } from 'react';
+import { useFmt } from '../hooks/useCurrency';
 import { Search, Bell, ChevronRight, Clock, Star, RefreshCw, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +54,7 @@ const FALLBACK_PROMOS = [
 
 export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }: Props) => {
   const { t, i18n } = useTranslation();
+  const fmt = useFmt();
   const isRTL = i18n.language === 'ar';
 
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -236,7 +238,7 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
                   </div>
                   <p className="text-xs font-bold truncate">{order.items?.slice(0,2).map((i: any) => i.name).join(', ')}</p>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-sm font-extrabold text-primary">${order.total?.toFixed(2)}</span>
+                    <span className="text-sm font-extrabold text-primary">{fmt(order.total ?? 0)}</span>
                     <div className="flex items-center gap-1 text-on-surface-variant">
                       <RefreshCw className="w-3 h-3" /><span className="text-[10px] font-bold">{t('app.reorder')}</span>
                     </div>

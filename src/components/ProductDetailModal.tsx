@@ -3,6 +3,7 @@ import { X, Plus, Minus, ShoppingCart } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../contexts/CartContext';
+import { useFmt } from '../hooks/useCurrency';
 import type { MenuItem } from '../types';
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
 
 export const ProductDetailModal = ({ item, restaurantId, restaurantName, restaurantLogo, onClose, onCartOpen }: Props) => {
   const { t } = useTranslation();
+  const fmt = useFmt();
   const { addItem, items } = useCart();
   const [qty, setQty] = useState(1);
   const [note, setNote] = useState('');
@@ -70,7 +72,7 @@ export const ProductDetailModal = ({ item, restaurantId, restaurantName, restaur
           {/* Name + price */}
           <div className="flex items-start justify-between gap-3 mb-3">
             <h2 className="text-xl font-extrabold font-headline flex-1">{item.name}</h2>
-            <span className="text-xl font-extrabold text-primary shrink-0">${(item.price * qty).toFixed(2)}</span>
+            <span className="text-xl font-extrabold text-primary shrink-0">{fmt(item.price * qty)}</span>
           </div>
 
           {/* Description */}
@@ -129,7 +131,7 @@ export const ProductDetailModal = ({ item, restaurantId, restaurantName, restaur
           <button onClick={handleAdd}
             className="flex-1 btn-gradient text-white rounded-2xl py-3.5 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform">
             <ShoppingCart className="w-4 h-4" />
-            {t('product.addToCart')} · ${(item.price * qty).toFixed(2)}
+            {t('product.addToCart')} · {fmt(item.price * qty)}
           </button>
         </div>
       </motion.div>

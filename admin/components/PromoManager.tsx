@@ -3,6 +3,7 @@ import { Plus, Trash2, Tag, ToggleLeft, ToggleRight, Calendar, Hash } from 'luci
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { authFetch } from '../../src/lib/auth';
+import { formatCurrency } from '../../src/lib/currency';
 
 interface PromoCode {
   _id: string;
@@ -28,6 +29,7 @@ export const PromoManager = () => {
   const { t } = useTranslation();
   const [promos, setPromos] = useState<PromoCode[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currency, setCurrency] = useState('USD');
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm());
   const [saving, setSaving] = useState(false);
@@ -41,7 +43,10 @@ export const PromoManager = () => {
     finally { setIsLoading(false); }
   };
 
-  useEffect(() => { fetchPromos(); }, []);
+  useEffect(() => {
+    fetchPromos();
+    authFetch('/api/settings/restaurant').then(r => r.ok ? r.json() : null).then(s => { if (s?.currency) setCurrency(s.currency); });
+  }, []);
 
   const handleCreate = async () => {
     if (!form.code || !form.discountValue) { setError('Code and discount value are required'); return; }
@@ -75,7 +80,7 @@ export const PromoManager = () => {
   };
 
   const formatDiscount = (promo: PromoCode) =>
-    promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue.toFixed(2)}`;
+    promo.discountType === 'percentage' ? `${promo.discountValue}%` : formatCurrency(promo.discountValue, currency);
 
   const isExpired = (promo: PromoCode) =>
     promo.expiryDate ? new Date() > new Date(promo.expiryDate) : false;

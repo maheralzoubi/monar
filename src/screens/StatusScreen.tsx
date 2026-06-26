@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Check, Utensils, Bell, PartyPopper, MessageSquare, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { useFmt } from '../hooks/useCurrency';
 import { io } from 'socket.io-client';
 import { Skeleton } from '../components/Skeleton';
 import { NotificationToast } from '../components/NotificationToast';
@@ -25,6 +26,7 @@ const STATUS_DEFS = [
 
 export const StatusScreen = ({ orderId }: { orderId: string | null }) => {
   const { t, i18n } = useTranslation();
+  const fmt = useFmt();
   const isRTL = i18n.language === 'ar';
 
   const [order, setOrder] = useState<Order | null>(null);
@@ -196,7 +198,7 @@ export const StatusScreen = ({ orderId }: { orderId: string | null }) => {
                     <div className="flex-grow">
                       <div className="flex justify-between items-start">
                         <h4 className="font-headline font-bold text-sm">{item.name}</h4>
-                        <span className="text-sm font-semibold">${item.price.toFixed(2)}</span>
+                        <span className="text-sm font-semibold">{fmt(item.price)}</span>
                       </div>
                       <p className="text-xs text-on-surface-variant mt-1">{t('status.qty', { qty: item.quantity })}</p>
                     </div>
@@ -204,7 +206,7 @@ export const StatusScreen = ({ orderId }: { orderId: string | null }) => {
                 ))}
                 <div className="pt-4 border-t border-outline-variant/20 flex justify-between items-center">
                   <span className="font-label text-xs uppercase tracking-widest font-bold text-on-surface-variant">{t('status.totalPaid')}</span>
-                  <span className="font-headline font-extrabold text-xl text-primary">${order?.total.toFixed(2) || '0.00'}</span>
+                  <span className="font-headline font-extrabold text-xl text-primary">{fmt(order?.total ?? 0)}</span>
                 </div>
               </div>
             </section>
@@ -261,7 +263,7 @@ export const StatusScreen = ({ orderId }: { orderId: string | null }) => {
                       </div>
                       <div className="text-end">
                         <p className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">{t('status.total')}</p>
-                        <p className="font-headline font-bold text-lg text-primary">${prevOrder.total.toFixed(2)}</p>
+                        <p className="font-headline font-bold text-lg text-primary">{fmt(prevOrder.total)}</p>
                       </div>
                     </div>
                   </div>
