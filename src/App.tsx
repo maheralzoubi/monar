@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { CartProvider } from './contexts/CartContext';
@@ -9,6 +9,7 @@ import { OrderTrackingScreen } from './screens/OrderTrackingScreen';
 import { OrdersScreen } from './screens/OrdersScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { BottomNav } from './components/BottomNav';
+import { useRestaurant } from './hooks/useRestaurant';
 
 export type MainTab = 'home' | 'orders' | 'profile';
 export type Overlay =
@@ -30,9 +31,18 @@ export default function App() {
   const [mainTab, setMainTab] = useState<MainTab>('home');
   const [overlay, setOverlay] = useState<Overlay>(null);
 
+  const { context: qrContext, loading: qrLoading } = useRestaurant();
+
   const openRestaurant = useCallback((id: string, name: string, logo?: string) => {
     setOverlay({ type: 'restaurant', id, name, logo });
   }, []);
+
+  // Auto-open restaurant when the page is loaded via a QR code URL (?restaurant=&table=)
+  useEffect(() => {
+    if (!qrLoading && qrContext) {
+      openRestaurant(qrContext.restaurantId, qrContext.restaurantName, qrContext.logo || undefined);
+    }
+  }, [qrLoading, qrContext, openRestaurant]);
 
   const openCart = useCallback(() => setOverlay({ type: 'cart' }), []);
   const openTracking = useCallback((orderId: string) => setOverlay({ type: 'tracking', orderId }), []);

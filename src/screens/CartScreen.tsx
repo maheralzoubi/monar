@@ -25,6 +25,13 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
   const handlePlace = async () => {
     if (items.length === 0) return;
     setError(''); setPlacing(true);
+
+    let tableNumber: string | undefined;
+    try {
+      const ctx = JSON.parse(localStorage.getItem('restaurant_context') || 'null');
+      if (ctx?.tableName && ctx?.restaurantId === restaurantId) tableNumber = ctx.tableName;
+    } catch { /* ignore */ }
+
     try {
       const payload = {
         items: items.map(i => ({ ...i })),
@@ -32,10 +39,11 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
         restaurantId,
         customerName: 'Guest',
         order_source: 'CUSTOMER_APP',
-        order_type: 'PICKUP',
+        order_type: tableNumber ? 'DINE_IN' : 'PICKUP',
         payment_method: 'PAY_LATER',
         payment_status: 'UNPAID',
         order_note: orderNote || undefined,
+        tableNumber,
       };
       const res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (!res.ok) { const d = await res.json(); setError(d.message || 'Failed to place order'); return; }
