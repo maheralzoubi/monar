@@ -54,7 +54,7 @@ export const Settings = () => {
 
   const [branding, setBranding] = useState<{ logo?: string; primaryColor: string } | null>(null);
 
-  const [hours, setHours] = useState({ openTime: '', closeTime: '', prepTime: '' });
+  const [hours, setHours] = useState({ openTime: '', closeTime: '', prepTime: '', timezone: 'UTC' });
   const [hoursSaving, setHoursSaving] = useState(false);
   const [hoursMsg, setHoursMsg] = useState('');
   const [selectedColor, setSelectedColor] = useState('#9b3f25');
@@ -81,7 +81,7 @@ export const Settings = () => {
           setBranding(data);
           setSelectedColor(data.primaryColor ?? '#9b3f25');
           setLogoPreview(data.logo ?? null);
-          setHours({ openTime: data.openTime ?? '', closeTime: data.closeTime ?? '', prepTime: data.prepTime ?? '' });
+          setHours({ openTime: data.openTime ?? '', closeTime: data.closeTime ?? '', prepTime: data.prepTime ?? '', timezone: data.timezone ?? 'UTC' });
         }
       } catch (e) {
         console.error('Failed to fetch settings:', e);
@@ -164,7 +164,7 @@ export const Settings = () => {
     try {
       const res = await authFetch('/api/settings/restaurant', {
         method: 'PATCH',
-        body: JSON.stringify({ openTime: hours.openTime, closeTime: hours.closeTime, prepTime: hours.prepTime }),
+        body: JSON.stringify({ openTime: hours.openTime, closeTime: hours.closeTime, prepTime: hours.prepTime, timezone: hours.timezone }),
       });
       setHoursMsg(res.ok ? 'Saved!' : 'Failed to save.');
     } catch { setHoursMsg('Network error.'); }
@@ -488,6 +488,24 @@ export const Settings = () => {
                   <input type="time" value={hours.closeTime} onChange={e => setHours(h => ({ ...h, closeTime: e.target.value }))}
                     className="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Timezone</label>
+                <input
+                  list="tz-list"
+                  value={hours.timezone}
+                  onChange={e => setHours(h => ({ ...h, timezone: e.target.value }))}
+                  placeholder="e.g. Asia/Amman"
+                  className="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                />
+                <datalist id="tz-list">
+                  {(typeof Intl !== 'undefined' && (Intl as any).supportedValuesOf
+                    ? (Intl as any).supportedValuesOf('timeZone')
+                    : ['UTC','Asia/Amman','Asia/Dubai','Asia/Riyadh','Asia/Kuwait','Asia/Beirut','Europe/London','Europe/Paris','America/New_York','America/Chicago','America/Los_Angeles','Asia/Tokyo','Asia/Shanghai']
+                  ).map((tz: string) => <option key={tz} value={tz} />)}
+                </datalist>
+                <p className="text-xs text-on-surface-variant px-1">IANA timezone — used to decide open/closed status. Current: <strong>{hours.timezone}</strong></p>
               </div>
 
               <div className="space-y-1.5">

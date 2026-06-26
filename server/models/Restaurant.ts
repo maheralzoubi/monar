@@ -12,6 +12,7 @@ export interface IRestaurant extends Document {
   openTime?: string;
   closeTime?: string;
   prepTime?: string;
+  timezone?: string;
   adminId: mongoose.Types.ObjectId;
   ownerId?: mongoose.Types.ObjectId; // subscriber who created this restaurant (null = created by superadmin)
 }
@@ -29,6 +30,7 @@ const RestaurantSchema = new Schema<IRestaurant>(
     openTime:  { type: String },
     closeTime: { type: String },
     prepTime:  { type: String },
+    timezone:  { type: String, default: 'UTC' },
     adminId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
   },
