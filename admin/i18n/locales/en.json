@@ -330,6 +330,7 @@
     "sections": {
       "profile":       { "label": "Profile Settings",    "desc": "Manage your personal information." },
       "branding":      { "label": "Restaurant Branding",  "desc": "Logo and accent color for customers." },
+      "hours":         { "label": "Business Hours",       "desc": "Opening times and prep time." },
       "notifications": { "label": "Notifications",        "desc": "Configure alerts and updates." },
       "security":      { "label": "Security",             "desc": "Password and account security." },
       "preferences":   { "label": "Preferences",          "desc": "Language and display settings." }

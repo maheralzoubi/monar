@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Bell, Shield, User, Globe,
+  Bell, Shield, User, Globe, Clock,
   Save, Lock, Palette, Upload, CheckCircle2, Image as ImageIcon
 } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -53,6 +53,10 @@ export const Settings = () => {
   const [saveMsg, setSaveMsg] = useState('');
 
   const [branding, setBranding] = useState<{ logo?: string; primaryColor: string } | null>(null);
+
+  const [hours, setHours] = useState({ openTime: '', closeTime: '', prepTime: '' });
+  const [hoursSaving, setHoursSaving] = useState(false);
+  const [hoursMsg, setHoursMsg] = useState('');
   const [selectedColor, setSelectedColor] = useState('#9b3f25');
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -77,6 +81,7 @@ export const Settings = () => {
           setBranding(data);
           setSelectedColor(data.primaryColor ?? '#9b3f25');
           setLogoPreview(data.logo ?? null);
+          setHours({ openTime: data.openTime ?? '', closeTime: data.closeTime ?? '', prepTime: data.prepTime ?? '' });
         }
       } catch (e) {
         console.error('Failed to fetch settings:', e);
@@ -154,9 +159,22 @@ export const Settings = () => {
     }
   };
 
+  const handleSaveHours = async () => {
+    setHoursSaving(true); setHoursMsg('');
+    try {
+      const res = await authFetch('/api/settings/restaurant', {
+        method: 'PATCH',
+        body: JSON.stringify({ openTime: hours.openTime, closeTime: hours.closeTime, prepTime: hours.prepTime }),
+      });
+      setHoursMsg(res.ok ? 'Saved!' : 'Failed to save.');
+    } catch { setHoursMsg('Network error.'); }
+    finally { setHoursSaving(false); setTimeout(() => setHoursMsg(''), 3000); }
+  };
+
   const sections = [
     { id: 'profile',       icon: User    },
     { id: 'branding',      icon: Palette },
+    { id: 'hours',         icon: Clock   },
     { id: 'notifications', icon: Bell    },
     { id: 'security',      icon: Shield  },
     { id: 'preferences',   icon: Globe   },
@@ -451,7 +469,56 @@ export const Settings = () => {
           </motion.div>
         )}
 
-        {activeSection !== 'profile' && activeSection !== 'notifications' && activeSection !== 'branding' && (
+        {activeSection === 'hours' && (
+          <motion.div key="hours" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+            <div>
+              <h3 className="text-2xl font-headline font-extrabold mb-1">Business Hours</h3>
+              <p className="text-on-surface-variant font-medium">Set your opening times and average prep time shown to customers.</p>
+            </div>
+
+            <section className="p-6 rounded-3xl border border-outline-variant/20 bg-surface-container-lowest space-y-5">
+              <div className="flex gap-4">
+                <div className="flex-1 space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Opens at</label>
+                  <input type="time" value={hours.openTime} onChange={e => setHours(h => ({ ...h, openTime: e.target.value }))}
+                    className="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div className="flex-1 space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Closes at</label>
+                  <input type="time" value={hours.closeTime} onChange={e => setHours(h => ({ ...h, closeTime: e.target.value }))}
+                    className="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Prep Time (shown to customers)</label>
+                <input type="text" value={hours.prepTime} onChange={e => setHours(h => ({ ...h, prepTime: e.target.value }))}
+                  placeholder="e.g. 15–25"
+                  className="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+                <p className="text-xs text-on-surface-variant px-1">Displayed as "15–25 min" on the customer app.</p>
+              </div>
+
+              {hours.openTime && hours.closeTime && (
+                <div className="flex items-center gap-2 px-4 py-3 bg-primary/10 rounded-2xl">
+                  <Clock className="w-4 h-4 text-primary shrink-0" />
+                  <p className="text-sm font-bold text-primary">Open {hours.openTime} – {hours.closeTime}</p>
+                </div>
+              )}
+            </section>
+
+            {hoursMsg && <p className="text-sm font-bold text-primary">{hoursMsg}</p>}
+
+            <div className="flex justify-end">
+              <button onClick={handleSaveHours} disabled={hoursSaving}
+                className="px-8 py-4 rounded-2xl btn-gradient text-white font-bold text-sm shadow-xl shadow-primary/20 flex items-center gap-2 disabled:opacity-60">
+                <Save className="w-4 h-4" />
+                {hoursSaving ? 'Saving…' : 'Save Hours'}
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {activeSection !== 'profile' && activeSection !== 'notifications' && activeSection !== 'branding' && activeSection !== 'hours' && (
           <div className="h-full flex flex-col items-center justify-center text-center p-12 opacity-40">
             <Shield className="w-16 h-16 mb-4" />
             <p className="font-bold">{t('settings.comingSoon')}</p>

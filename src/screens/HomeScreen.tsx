@@ -10,6 +10,10 @@ interface Restaurant {
   address?: string;
   status: string;
   cuisine: string[];
+  isOpen: boolean;
+  prepTime: string | null;
+  openTime: string | null;
+  closeTime: string | null;
   averageRating: number;
 }
 
@@ -40,7 +44,6 @@ const FALLBACK_PROMOS = [
   { title: 'New Arrivals',  subtitle: 'Try our latest menu',  emoji: '✨' },
 ];
 
-const PREP_TIMES = ['10–15', '15–20', '20–25', '25–30'];
 
 export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }: Props) => {
   const { t, i18n } = useTranslation();
@@ -70,9 +73,10 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
 
   useEffect(() => {
     try {
-      const history: string[] = JSON.parse(localStorage.getItem('order_history') || '[]');
+      const raw = JSON.parse(localStorage.getItem('order_history') || '[]');
+      const history = raw.map((e: any) => typeof e === 'string' ? e : (e._id ?? e.id)).filter(Boolean);
       if (!history.length) return;
-      Promise.all(history.slice(0, 3).map(id => fetch(`/api/orders/${id}`).then(r => r.ok ? r.json() : null)))
+      Promise.all(history.slice(0, 3).map((id: string) => fetch(`/api/orders/${id}`).then(r => r.ok ? r.json() : null)))
         .then(orders => setRecentOrders(orders.filter(Boolean)));
     } catch { /* ignore */ }
   }, []);
@@ -270,9 +274,7 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
           ) : (
             <div className="space-y-3">
               <AnimatePresence mode="popLayout">
-                {filteredRestaurants.map((r, idx) => {
-                  const isOpen = r.status !== 'inactive';
-                  return (
+                {filteredRestaurants.map((r, idx) => (
                     <motion.button
                       key={r._id}
                       layout
@@ -281,8 +283,8 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
                       exit={{ opacity: 0, scale: 0.96 }}
                       transition={{ delay: idx * 0.03, duration: 0.2 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => isOpen && onOpenRestaurant(r._id, r.name, r.logo)}
-                      className={`w-full bg-surface-container rounded-2xl overflow-hidden text-start flex items-center gap-4 p-4 ${!isOpen ? 'opacity-50' : ''}`}
+                      onClick={() => r.isOpen && onOpenRestaurant(r._id, r.name, r.logo)}
+                      className={`w-full bg-surface-container rounded-2xl overflow-hidden text-start flex items-center gap-4 p-4 ${!r.isOpen ? 'opacity-50' : ''}`}
                     >
                       {/* Logo */}
                       <div className="w-20 h-20 rounded-2xl overflow-hidden bg-surface-container-high shrink-0 flex items-center justify-center">
@@ -295,8 +297,8 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <p className="font-extrabold text-sm leading-tight truncate">{r.name}</p>
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${isOpen ? 'bg-primary/15 text-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
-                            {isOpen ? t('common.open') : t('common.closed')}
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 ${r.isOpen ? 'bg-primary/15 text-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
+                            {r.isOpen ? t('common.open') : t('common.closed')}
                           </span>
                         </div>
 
@@ -325,17 +327,21 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
                               <span className="text-xs font-extrabold">{r.averageRating}</span>
                             </div>
                           )}
+                          {r.prepTime && (
                           <div className="flex items-center gap-1 text-on-surface-variant">
                             <Clock className="w-3 h-3" />
-                            <span className="text-xs">{PREP_TIMES[idx % PREP_TIMES.length]} {t('common.min')}</span>
+                            <span className="text-xs">{r.prepTime} {t('common.min')}</span>
                           </div>
+                        )}
+                        {r.openTime && r.closeTime && (
+                          <span className="text-xs text-on-surface-variant">{r.openTime} – {r.closeTime}</span>
+                        )}
                         </div>
                       </div>
 
                       <ChevronRight className={`w-4 h-4 text-on-surface-variant/30 shrink-0 ${isRTL ? 'rotate-180' : ''}`} />
                     </motion.button>
-                  );
-                })}
+                ))}
               </AnimatePresence>
             </div>
           )}

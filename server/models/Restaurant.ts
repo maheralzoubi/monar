@@ -9,6 +9,9 @@ export interface IRestaurant extends Document {
   address?: string;
   status: 'active' | 'inactive';
   cuisine: string[];
+  openTime?: string;
+  closeTime?: string;
+  prepTime?: string;
   adminId: mongoose.Types.ObjectId;
   ownerId?: mongoose.Types.ObjectId; // subscriber who created this restaurant (null = created by superadmin)
 }
@@ -22,7 +25,10 @@ const RestaurantSchema = new Schema<IRestaurant>(
     contactPhone: { type: String, trim: true },
     address: { type: String, trim: true },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
-    cuisine: { type: [String], default: [] },
+    cuisine:   { type: [String], default: [] },
+    openTime:  { type: String },
+    closeTime: { type: String },
+    prepTime:  { type: String },
     adminId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
   },
