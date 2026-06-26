@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Bell, ChevronRight, Clock, Star, RefreshCw, MapPin } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 
 interface Restaurant {
@@ -116,28 +116,55 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking }: Props) => {
       <div className="px-5 pt-5 space-y-6">
         {/* Promo Slider */}
         <div>
-          <div className="overflow-hidden rounded-2xl">
-            <div
-              className="flex transition-transform duration-500"
-              style={{ transform: `translateX(${isRTL ? '' : '-'}${promoIdx * 100}%)` }}
-            >
-              {slides.map((p, i) => (
-                <div key={i} className="min-w-full bg-gradient-to-r from-primary to-primary-container rounded-2xl p-5 flex items-center justify-between">
-                  <div className="text-white">
-                    <p className="text-xl font-extrabold">{p.title}</p>
-                    {p.subtitle && <p className="text-sm opacity-80 mt-0.5">{p.subtitle}</p>}
-                  </div>
-                  <span className="text-5xl">{p.emoji}</span>
+          <div className="relative overflow-hidden rounded-3xl" style={{ height: 148 }}>
+            <AnimatePresence initial={false} mode="wait">
+              <motion.div
+                key={promoIdx}
+                initial={{ opacity: 0, x: isRTL ? -40 : 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: isRTL ? 40 : -40 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.15}
+                onDragEnd={(_, info) => {
+                  if (info.offset.x < -50) setPromoIdx(i => (i + 1) % slides.length);
+                  else if (info.offset.x > 50) setPromoIdx(i => (i - 1 + slides.length) % slides.length);
+                }}
+                className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary-container rounded-3xl px-6 py-5 flex items-center justify-between cursor-grab active:cursor-grabbing select-none overflow-hidden"
+              >
+                {/* Background decoration */}
+                <div className="absolute -top-6 -right-6 w-36 h-36 rounded-full bg-white/10" />
+                <div className="absolute -bottom-8 right-10 w-24 h-24 rounded-full bg-white/5" />
+
+                {/* Text */}
+                <div className="relative z-10 flex-1 min-w-0 pr-4">
+                  <span className="inline-block text-[10px] font-bold uppercase tracking-widest bg-white/20 text-white px-2.5 py-1 rounded-full mb-2">
+                    {`${promoIdx + 1} / ${slides.length}`}
+                  </span>
+                  <p className="text-2xl font-extrabold text-white leading-tight">{slides[promoIdx].title}</p>
+                  {slides[promoIdx].subtitle && (
+                    <p className="text-sm text-white/75 mt-1 leading-snug">{slides[promoIdx].subtitle}</p>
+                  )}
                 </div>
+
+                {/* Emoji bubble */}
+                <div className="relative z-10 w-20 h-20 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                  <span className="text-4xl">{slides[promoIdx].emoji}</span>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Dot indicators */}
+          {slides.length > 1 && (
+            <div className="flex justify-center gap-1.5 mt-3">
+              {slides.map((_, i) => (
+                <button key={i} onClick={() => setPromoIdx(i)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${i === promoIdx ? 'w-6 bg-primary' : 'w-1.5 bg-surface-container-high'}`} />
               ))}
             </div>
-          </div>
-          <div className="flex justify-center gap-1.5 mt-2.5">
-            {(banners.length ? banners : FALLBACK_PROMOS).map((_, i) => (
-              <button key={i} onClick={() => setPromoIdx(i)}
-                className={`h-1.5 rounded-full transition-all ${i === promoIdx ? 'w-5 bg-primary' : 'w-1.5 bg-surface-container-high'}`} />
-            ))}
-          </div>
+          )}
         </div>
 
         {/* Food Categories */}
