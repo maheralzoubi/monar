@@ -61,7 +61,7 @@ export default function App() {
           <AnimatePresence mode="wait">
             {mainTab === 'home' && (
               <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <HomeScreen onOpenRestaurant={openRestaurant} onOpenTracking={openTracking} />
+                <HomeScreen onOpenRestaurant={openRestaurant} onOpenTracking={openTracking} onViewAllOrders={() => setMainTab('orders')} />
               </motion.div>
             )}
             {mainTab === 'orders' && (

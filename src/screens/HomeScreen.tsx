@@ -16,6 +16,7 @@ interface Restaurant {
 interface Props {
   onOpenRestaurant: (id: string, name: string, logo?: string) => void;
   onOpenTracking: (orderId: string) => void;
+  onViewAllOrders: () => void;
 }
 
 const FOOD_CATEGORIES = [
@@ -41,7 +42,7 @@ const FALLBACK_PROMOS = [
 
 const PREP_TIMES = ['10–15', '15–20', '20–25', '25–30'];
 
-export const HomeScreen = ({ onOpenRestaurant, onOpenTracking }: Props) => {
+export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }: Props) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
@@ -208,7 +209,7 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking }: Props) => {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-extrabold">{t('app.recentOrders')}</h2>
-              <button className="text-xs text-primary font-bold flex items-center gap-0.5">
+              <button onClick={onViewAllOrders} className="text-xs text-primary font-bold flex items-center gap-0.5">
                 {t('app.viewAll')} <ChevronRight className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />
               </button>
             </div>
