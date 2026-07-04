@@ -55,9 +55,9 @@ export const WelcomeScreen = ({ onLogin, onRegister, onGuest }: Props) => {
           <h1 className="text-4xl font-headline font-extrabold tracking-tight text-on-surface">
             Monar
           </h1>
-          <p className="text-lg font-semibold text-primary">Pre-order · Skip the Wait</p>
+          <p className="text-lg font-semibold text-primary">{t('welcome.tagline')}</p>
           <p className="text-sm text-on-surface-variant max-w-xs mx-auto leading-relaxed">
-            Browse restaurants, customize your order, and pick it up when it's ready — no waiting in line.
+            {t('welcome.description')}
           </p>
         </motion.div>
 
@@ -72,19 +72,19 @@ export const WelcomeScreen = ({ onLogin, onRegister, onGuest }: Props) => {
             onClick={onRegister}
             className="w-full py-4 rounded-2xl btn-gradient text-white font-extrabold text-base shadow-xl shadow-primary/25 active:scale-95 transition-transform"
           >
-            Get Started
+            {t('welcome.getStarted')}
           </button>
           <button
             onClick={onLogin}
             className="w-full py-4 rounded-2xl bg-surface-container text-on-surface font-bold text-base active:scale-95 transition-transform"
           >
-            Sign In
+            {t('welcome.signIn')}
           </button>
           <button
             onClick={onGuest}
             className="w-full py-3 text-sm text-on-surface-variant font-medium active:opacity-60 transition-opacity"
           >
-            Continue as Guest
+            {t('welcome.continueAsGuest')}
           </button>
         </motion.div>
       </div>

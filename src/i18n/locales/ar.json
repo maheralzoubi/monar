@@ -7,6 +7,7 @@
     "min": "د",
     "result": "نتيجة",
     "results": "نتائج",
+    "networkError": "خطأ في الشبكة. حاول مرة أخرى.",
     "greetings": {
       "night": "مساء الخير",
       "morning": "صباح الخير",
@@ -48,7 +49,26 @@
     "fresh": "طازج",
     "orgValue": "١٠٠٪",
     "srcValue": "محلي",
-    "freshValue": "يومياً"
+    "freshValue": "يومياً",
+    "categories": {
+      "All": "الكل",
+      "Coffee": "قهوة",
+      "Burgers": "برجر",
+      "Pizza": "بيتزا",
+      "Pasta": "باستا",
+      "Shawarma": "شاورما",
+      "Salads": "سلطات",
+      "Desserts": "حلويات",
+      "Drinks": "مشروبات",
+      "Breakfast": "فطور",
+      "Chicken": "دجاج",
+      "Healthy": "صحي"
+    },
+    "promos": {
+      "freePickup": { "title": "استلام مجاني", "subtitle": "لجميع الطلبات هذا الأسبوع" },
+      "offMains": { "title": "خصم 20% على الأطباق الرئيسية", "subtitle": "للطلبات فوق 30" },
+      "newArrivals": { "title": "وصل حديثاً", "subtitle": "جرّب أحدث أطباقنا" }
+    }
   },
   "menu": {
     "searchPlaceholder": "ابحث عن أطباق أو مكونات...",
@@ -79,7 +99,9 @@
     "empty": "سلة التسوق فارغة",
     "promoApplied": "تم تطبيق خصم {{value}}!",
     "promoInvalid": "كود الخصم غير صالح",
-    "promoError": "تعذّر التحقق من الكود. حاول مجدداً."
+    "promoError": "تعذّر التحقق من الكود. حاول مجدداً.",
+    "orderFailed": "فشل تقديم الطلب",
+    "noTip": "بدون بقشيش"
   },
   "payment": {
     "title": "طريقة الدفع",
@@ -100,6 +122,7 @@
     "Preparing": "قيد التحضير",
     "Ready": "جاهز",
     "Delivered": "تم التسليم",
+    "Cancelled": "ملغى",
     "pendingDesc": "تم تأكيد الطلب",
     "preparingDesc": "طهاتنا يعملون على تحضير وجبتك",
     "readyDesc": "التشطيب النهائي والتزيين",
@@ -184,6 +207,16 @@
       "mexican": "مكسيكي",
       "french": "فرنسي",
       "indian": "هندي"
+    },
+    "cuisineNames": {
+      "Italian": "إيطالي",
+      "American": "أمريكي",
+      "Asian": "آسيوي",
+      "Mediterranean": "متوسطي",
+      "Japanese": "ياباني",
+      "Mexican": "مكسيكي",
+      "French": "فرنسي",
+      "Indian": "هندي"
     }
   },
   "nav": {
@@ -215,7 +248,22 @@
     "signIn": "تسجيل الدخول",
     "signingIn": "جارٍ الدخول...",
     "noAccount": "ليس لديك حساب؟",
-    "createOne": "أنشئ حساباً"
+    "createOne": "أنشئ حساباً",
+    "loginFailed": "فشل تسجيل الدخول"
+  },
+  "customerRegister": {
+    "title": "إنشاء حساب",
+    "subtitle": "انضم لتتبع طلباتك وحجوزاتك",
+    "fullName": "الاسم الكامل",
+    "fullNamePlaceholder": "محمد أحمد",
+    "phone": "الهاتف (اختياري)",
+    "phonePlaceholder": "+962 7 9000 0000",
+    "passwordPlaceholder": "6 أحرف على الأقل",
+    "creatingAccount": "جارٍ إنشاء الحساب...",
+    "createAccount": "إنشاء حساب",
+    "alreadyHaveAccount": "لديك حساب بالفعل؟",
+    "signIn": "سجّل الدخول",
+    "registrationFailed": "فشل إنشاء الحساب"
   },
   "profile": {
     "orders": "الطلبات",
@@ -225,6 +273,38 @@
     "noOrders": "لا توجد طلبات بعد",
     "orderNum": "طلب #{{id}}"
   },
+  "settings": {
+    "preferences": "التفضيلات",
+    "language": "اللغة",
+    "notifications": "الإشعارات",
+    "about": "حول التطبيق",
+    "appVersion": "إصدار التطبيق",
+    "helpSupport": "المساعدة والدعم",
+    "poweredBy": "مشغّل بواسطة Monar"
+  },
+  "welcome": {
+    "tagline": "اطلب مسبقاً · تجاوز الانتظار",
+    "description": "تصفح المطاعم، خصص طلبك، واستلمه عندما يكون جاهزاً — دون انتظار في الطابور.",
+    "getStarted": "ابدأ الآن",
+    "signIn": "تسجيل الدخول",
+    "continueAsGuest": "المتابعة كضيف"
+  },
+  "qrScanner": {
+    "cameraDenied": "تم رفض الوصول إلى الكاميرا. يرجى السماح بإذن الكاميرا والمحاولة مرة أخرى.",
+    "restaurantNotFound": "لم يتم العثور على المطعم. تحقق من كود QR وحاول مرة أخرى.",
+    "noValidQr": "لم يتم العثور على كود QR صالح لمطعم في هذه الصورة.",
+    "imageReadError": "تعذّرت قراءة الصورة المحددة. يرجى المحاولة مرة أخرى.",
+    "alignQr": "ضع كود QR داخل الإطار",
+    "scanningAuto": "المسح يتم تلقائياً — لا حاجة للضغط",
+    "loadingRestaurant": "جارٍ تحميل المطعم…",
+    "tryAgain": "حاول مرة أخرى",
+    "uploadGallery": "تحميل من المعرض",
+    "restaurantFound": "تم العثور على المطعم!",
+    "openingMenu": "جارٍ فتح القائمة…"
+  },
+  "notification": {
+    "orderUpdate": "تحديث الطلب"
+  },
   "app": {
     "searchPlaceholder": "ابحث عن مطاعم أو أطباق...",
     "craving": "ماذا تشتهي؟",
@@ -233,7 +313,8 @@
     "reorder": "إعادة الطلب",
     "nearYou": "مطاعم قريبة منك",
     "available": "متاح",
-    "noRestaurants": "لا توجد مطاعم متاحة"
+    "noRestaurants": "لا توجد مطاعم متاحة",
+    "clearFilter": "مسح الفلتر"
   },
   "pickup": {
     "cartTitle": "سلة الطلب",
@@ -262,6 +343,8 @@
     "noPast": "لا توجد طلبات سابقة"
   },
   "tracking": {
+    "orderLabel": "الطلب",
+    "notFound": "لم يتم العثور على الطلب",
     "received": "تم استلام الطلب",
     "receivedDesc": "لقد تم استلام طلبك",
     "preparing": "قيد التحضير",

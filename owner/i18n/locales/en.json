@@ -12,7 +12,8 @@
     "annual": "Annual",
     "creating": "Creating...",
     "saving": "Saving…",
-    "noResults": "No results"
+    "noResults": "No results",
+    "switchLanguage": "Switch to Arabic"
   },
   "nav": {
     "restaurants": "Restaurants",
@@ -33,7 +34,46 @@
   },
   "login": {
     "title": "Owner Access",
-    "subtitle": "Sign in to the App Owner Panel"
+    "subtitle": "Sign in to the App Owner Panel",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "restaurantInactive": "Restaurant account is inactive. Please contact the platform owner.",
+      "accountLocked": "Your account has been locked. Please contact support.",
+      "validation": "Please check your email and password and try again.",
+      "network": "Network error. Please try again.",
+      "generic": "Login failed. Please try again.",
+      "emailNotVerified": "Please verify your email address before signing in."
+    },
+    "resendVerification": "Resend verification email",
+    "resendSent": "A new verification link has been sent to your inbox."
+  },
+  "forgotPassword": {
+    "link": "Forgot password?",
+    "heading": "Reset your password",
+    "emailSubtext": "Enter your email and we'll send you a reset code.",
+    "sendCodeButton": "Send reset code",
+    "codeSubtext": "Enter the 6-digit code we sent to {{email}}",
+    "newPasswordLabel": "New Password",
+    "confirmPasswordLabel": "Confirm Password",
+    "resetButton": "Reset Password",
+    "resendButton": "Resend code",
+    "resendSent": "A new code has been sent to your inbox.",
+    "doneHeading": "Your password has been reset.",
+    "doneBody": "You can now sign in with your new password.",
+    "backToSignIn": "Back to Sign In",
+    "errors": {
+      "invalidCode": "Incorrect code. Please try again.",
+      "expiredCode": "This code has expired. Please request a new one.",
+      "tooManyAttempts": "Too many incorrect attempts. Please request a new code.",
+      "weakPassword": "Password must be at least 6 characters.",
+      "passwordMismatch": "Passwords do not match.",
+      "emailNotFound": "No account found with this email.",
+      "generic": "Something went wrong. Please try again."
+    }
   },
   "landing": {
     "signIn": "Sign In",
@@ -135,9 +175,24 @@
   "success": {
     "badge": "Account Created",
     "heading": "You're all set!",
-    "description": "Your Monar {{plan}} account is ready. Sign in to your owner panel to get started.",
-    "emailSent": "A welcome email has been sent to your inbox.",
+    "description": "Your Monar {{plan}} account has been created.",
+    "emailSent": "Your email has been verified.",
     "goToSignIn": "Go to Sign In"
+  },
+  "verify": {
+    "heading": "Verify your email",
+    "subtext": "Enter the 6-digit code we sent to {{email}}",
+    "codePlaceholder": "000000",
+    "verifyButton": "Verify",
+    "verifying": "Verifying…",
+    "resendButton": "Resend code",
+    "resendSent": "A new code has been sent to your inbox.",
+    "errors": {
+      "invalidCode": "Incorrect code. Please try again.",
+      "expiredCode": "This code has expired. Please request a new one.",
+      "tooManyAttempts": "Too many incorrect attempts. Please request a new code.",
+      "generic": "Something went wrong. Please try again."
+    }
   },
   "plans": {
     "manager": {
@@ -145,7 +200,9 @@
       "subtext": "Edit pricing, features, and limits for each plan. Changes appear live on the landing page.",
       "editPlan": "Edit {{name}} Plan",
       "planName": "Plan Name",
+      "planNameAr": "Plan Name (Arabic)",
       "description": "Description",
+      "descriptionAr": "Description (Arabic)",
       "monthlyPrice": "Monthly Price / mo",
       "annualPrice": "Annual Price / mo",
       "priceNote": "Price changes create a new Stripe price and apply to new subscriptions only. Existing subscribers keep their current rate.",
@@ -154,7 +211,9 @@
       "mostPopular": "Most Popular",
       "active": "Active",
       "features": "Features",
+      "featuresAr": "Features (Arabic)",
       "addFeaturePlaceholder": "Add a feature and press Enter…",
+      "addFeaturePlaceholderAr": "Add a feature in Arabic and press Enter…",
       "restaurantsAllowed": "{{count}} restaurant(s) allowed",
       "unlimited": "Unlimited",
       "save": "Save Changes",
@@ -246,7 +305,23 @@
       "passwordPlaceholder": "Min 6 characters",
       "cancel": "Cancel",
       "create": "Create Restaurant",
-      "creating": "Creating..."
+      "creating": "Creating...",
+      "createFailed": "Failed to create restaurant",
+      "networkError": "Network error.",
+      "cuisineTypes": "Cuisine Types",
+      "cuisineLabels": {
+        "Coffee": "Coffee",
+        "Burgers": "Burgers",
+        "Pizza": "Pizza",
+        "Pasta": "Pasta",
+        "Shawarma": "Shawarma",
+        "Salads": "Salads",
+        "Desserts": "Desserts",
+        "Drinks": "Drinks",
+        "Breakfast": "Breakfast",
+        "Chicken": "Chicken",
+        "Healthy": "Healthy"
+      }
     }
   },
   "restaurantDetail": {
@@ -355,7 +430,37 @@
       "passwordPlaceholder": "Min 6 characters",
       "cancel": "Cancel",
       "create": "Create Admin",
-      "creating": "Creating..."
+      "creating": "Creating...",
+      "createFailed": "Failed to create admin",
+      "networkError": "Network error. Please try again."
     }
+  },
+  "banners": {
+    "heading": "Home Banners",
+    "subtext": "Manage the promo slider shown on the customer app home screen.",
+    "addBanner": "Add Banner",
+    "loadFailed": "Failed to load banners.",
+    "livePreview": "Live Preview",
+    "noBanners": "No banners yet. Add your first one.",
+    "active": "Active",
+    "hidden": "Hidden",
+    "hide": "Hide",
+    "show": "Show",
+    "editBanner": "Edit Banner",
+    "newBanner": "New Banner",
+    "titleLabel": "Title *",
+    "titlePlaceholder": "e.g. Free Pickup",
+    "subtitleLabel": "Subtitle",
+    "subtitlePlaceholder": "e.g. All orders this week",
+    "emojiLabel": "Emoji",
+    "orderLabel": "Order",
+    "showOnHome": "Show on home screen",
+    "saveChanges": "Save Changes",
+    "createBanner": "Create Banner",
+    "saveFailed": "Failed to save. Try again.",
+    "updateFailed": "Failed to update.",
+    "deleteFailed": "Failed to delete.",
+    "deleteConfirmTitle": "Delete banner?",
+    "deleteConfirmBody": "This will remove the banner from the home screen immediately."
   }
 }

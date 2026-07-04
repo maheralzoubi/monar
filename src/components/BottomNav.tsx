@@ -63,7 +63,7 @@ export const BottomNav = ({ activeTab, onTabChange, onCartOpen }: Props) => {
               </span>
             )}
           </div>
-          <span className="text-[10px] font-bold opacity-60">Cart</span>
+          <span className="text-[10px] font-bold opacity-60">{t('bottomNav.cart')}</span>
         </button>
       </div>
     </div>

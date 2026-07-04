@@ -19,6 +19,13 @@ export interface IUser extends Document {
   restaurantName?: string;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+  emailVerified: boolean;
+  verificationCodeHash?: string;
+  verificationCodeExpires?: Date;
+  verificationAttempts: number;
+  resetCodeHash?: string;
+  resetCodeExpires?: Date;
+  resetAttempts: number;
   comparePassword(candidate: string): Promise<boolean>;
 }
 
@@ -40,6 +47,13 @@ const UserSchema = new Schema<IUser>(
     restaurantName: { type: String, trim: true },
     stripeCustomerId: { type: String },
     stripeSubscriptionId: { type: String },
+    emailVerified: { type: Boolean, default: true },
+    verificationCodeHash: { type: String },
+    verificationCodeExpires: { type: Date },
+    verificationAttempts: { type: Number, default: 0 },
+    resetCodeHash: { type: String },
+    resetCodeExpires: { type: Date },
+    resetAttempts: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

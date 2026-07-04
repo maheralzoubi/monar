@@ -80,11 +80,11 @@ export const RestaurantList = ({ onSelect }: Props) => {
     try {
       const res = await authFetch('/api/owner/restaurants', { method: 'POST', body: JSON.stringify(form) });
       const data = await res.json();
-      if (!res.ok) { setFormError(data.message ?? 'Failed to create restaurant'); return; }
+      if (!res.ok) { setFormError(data.message ?? t('restaurants.panel.createFailed')); return; }
       setRestaurants(prev => [{ ...data.restaurant, totalOrders: 0, totalRevenue: 0, totalCustomers: 0 }, ...prev]);
       setShowPanel(false);
       setForm(emptyForm());
-    } catch { setFormError('Network error.'); }
+    } catch { setFormError(t('restaurants.panel.networkError')); }
     finally { setFormLoading(false); }
   };
 
@@ -304,7 +304,7 @@ export const RestaurantList = ({ onSelect }: Props) => {
 
                 {/* Cuisine types */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Cuisine Types</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">{t('restaurants.panel.cuisineTypes')}</label>
                   <div className="flex flex-wrap gap-2 pt-1">
                     {CUISINE_OPTIONS.map(c => {
                       const active = form.cuisine.includes(c);
@@ -312,7 +312,7 @@ export const RestaurantList = ({ onSelect }: Props) => {
                         <button key={c} type="button"
                           onClick={() => setForm(f => ({ ...f, cuisine: active ? f.cuisine.filter(x => x !== c) : [...f.cuisine, c] }))}
                           className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${active ? 'bg-primary text-white' : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant'}`}>
-                          {c}
+                          {t(`restaurants.panel.cuisineLabels.${c}`, { defaultValue: c })}
                         </button>
                       );
                     })}

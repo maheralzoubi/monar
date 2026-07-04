@@ -132,7 +132,7 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) { const d = await res.json(); setError(d.message || 'Failed to place order'); return; }
+      if (!res.ok) { const d = await res.json(); setError(d.message || t('cart.orderFailed')); return; }
       const order = await res.json();
       try {
         const history: string[] = JSON.parse(localStorage.getItem('order_history') || '[]');
@@ -141,7 +141,7 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
       } catch { /* ignore */ }
       clearCart();
       onOrderPlaced(order._id);
-    } catch { setError('Network error. Please try again.'); }
+    } catch { setError(t('common.networkError')); }
     finally { setPlacing(false); }
   };
 
@@ -280,7 +280,7 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
                         className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                           tipPercent === pct ? 'bg-primary text-white shadow-sm' : 'bg-surface-container-high text-on-surface-variant'
                         }`}>
-                        {pct === 0 ? 'No tip' : `${pct}%`}
+                        {pct === 0 ? t('cart.noTip') : `${pct}%`}
                       </button>
                     ))}
                   </div>

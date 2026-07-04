@@ -63,11 +63,14 @@ const DEFAULT_PLANS = [
   {
     key: 'starter',
     name: 'Starter',
+    nameAr: 'مبتدئ',
     description: 'Perfect for single-location restaurants.',
+    descriptionAr: 'مثالي للمطاعم ذات الفرع الواحد.',
     monthlyPrice: 29,
     annualPrice: 23,
     restaurantLimit: 1,
     features: ['1 restaurant', '500 orders / month', 'QR code menus', 'Basic analytics', 'Email support'],
+    featuresAr: ['مطعم واحد', '500 طلب / شهر', 'قوائم رمز QR', 'تحليلات أساسية', 'دعم عبر البريد الإلكتروني'],
     popular: false,
     active: true,
     sortOrder: 1,
@@ -75,11 +78,14 @@ const DEFAULT_PLANS = [
   {
     key: 'pro',
     name: 'Pro',
+    nameAr: 'احترافي',
     description: 'For growing brands with multiple locations.',
+    descriptionAr: 'للعلامات التجارية المتنامية ذات المواقع المتعددة.',
     monthlyPrice: 79,
     annualPrice: 63,
     restaurantLimit: 5,
     features: ['Up to 5 restaurants', 'Unlimited orders', 'Advanced analytics', 'Custom branding', 'Promo codes', 'Reservations module', 'Priority support'],
+    featuresAr: ['حتى 5 مطاعم', 'طلبات غير محدودة', 'تحليلات متقدمة', 'علامة تجارية مخصصة', 'رموز ترويجية', 'وحدة الحجوزات', 'دعم ذو أولوية'],
     popular: true,
     active: true,
     sortOrder: 2,
@@ -87,11 +93,14 @@ const DEFAULT_PLANS = [
   {
     key: 'enterprise',
     name: 'Enterprise',
+    nameAr: 'مؤسسي',
     description: 'Unlimited scale for enterprise food groups.',
+    descriptionAr: 'نطاق غير محدود لمجموعات الأغذية الكبرى.',
     monthlyPrice: 199,
     annualPrice: 159,
     restaurantLimit: -1,
     features: ['Unlimited restaurants', 'Everything in Pro', 'White-label option', 'Custom integrations', 'Dedicated account manager', '99.9% SLA guarantee'],
+    featuresAr: ['مطاعم غير محدودة', 'كل مزايا الخطة الاحترافية', 'خيار العلامة البيضاء', 'تكاملات مخصصة', 'مدير حساب مخصص', 'ضمان 99.9% SLA'],
     popular: false,
     active: true,
     sortOrder: 3,
@@ -109,6 +118,13 @@ export async function runSeed() {
   // Seed default plans (upsert so edits are not overwritten)
   for (const p of DEFAULT_PLANS) {
     await Plan.findOneAndUpdate({ key: p.key }, { $setOnInsert: p }, { upsert: true });
+  }
+  // Backfill Arabic translations for plans created before nameAr/descriptionAr/featuresAr existed
+  for (const p of DEFAULT_PLANS) {
+    await Plan.updateOne(
+      { key: p.key, nameAr: { $in: ['', null] } },
+      { $set: { nameAr: p.nameAr, descriptionAr: p.descriptionAr, featuresAr: p.featuresAr } }
+    );
   }
   // Backfill Stripe Price IDs from env vars for any plan that doesn't have them yet
   for (const [key, ids] of Object.entries(ENV_PRICE_IDS)) {

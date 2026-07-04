@@ -51,7 +51,7 @@ export const OrderTrackingScreen = ({ orderId, onClose, onViewOrders }: Props) =
       {/* Header */}
       <div className="px-5 pt-12 pb-4 shrink-0 flex items-center justify-between">
         <div>
-          <p className="text-xs text-on-surface-variant">Order</p>
+          <p className="text-xs text-on-surface-variant">{t('tracking.orderLabel')}</p>
           <h1 className="text-xl font-extrabold font-headline">#{orderId.slice(-6).toUpperCase()}</h1>
         </div>
         <button onClick={onClose} className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center active:scale-90 transition-transform">
@@ -63,7 +63,7 @@ export const OrderTrackingScreen = ({ orderId, onClose, onViewOrders }: Props) =
         {loading ? (
           <div className="space-y-4">{[1,2,3].map(i => <div key={i} className="bg-surface-container rounded-2xl h-16 animate-pulse" />)}</div>
         ) : !order ? (
-          <div className="text-center py-16 text-on-surface-variant"><p className="text-sm">Order not found</p></div>
+          <div className="text-center py-16 text-on-surface-variant"><p className="text-sm">{t('tracking.notFound')}</p></div>
         ) : (
           <>
             {/* Status Banner */}

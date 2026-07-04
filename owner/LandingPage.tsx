@@ -9,11 +9,12 @@ import { useTranslation } from 'react-i18next';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { VerifyEmailScreen } from './VerifyEmailScreen';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type PlanId = string;
 type Billing = 'monthly' | 'annual';
-type Step = 'home' | 'setup' | 'checkout' | 'success';
+type Step = 'home' | 'setup' | 'checkout' | 'verify' | 'success';
 
 interface PlanDef {
   id: PlanId;
@@ -21,17 +22,22 @@ interface PlanDef {
   popular?: boolean;
   icon: React.ReactNode;
   description?: string;
+  descriptionAr?: string;
   features?: string[];
+  featuresAr?: string[];
 }
 
 interface ApiPlan {
   _id: string;
   key: string;
   name: string;
+  nameAr: string;
   description: string;
+  descriptionAr: string;
   monthlyPrice: number;
   annualPrice: number;
   features: string[];
+  featuresAr: string[];
   popular: boolean;
   active: boolean;
 }
@@ -148,7 +154,8 @@ function StripePayForm({
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export const LandingPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language.startsWith('ar');
   const [step, setStep]       = useState<Step>('home');
   const [billing, setBilling] = useState<Billing>('monthly');
   const [selected, setSelected] = useState<PlanDef | null>(null);
@@ -165,8 +172,10 @@ export const LandingPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
           price:   { monthly: p.monthlyPrice, annual: p.annualPrice },
           popular: p.popular,
           icon:    PLAN_ICONS[p.key] ?? <Star className="w-5 h-5" />,
-          description: p.description,
-          features:    p.features,
+          description:   p.description,
+          descriptionAr: p.descriptionAr,
+          features:      p.features,
+          featuresAr:    p.featuresAr,
         })));
       })
       .catch(() => { /* keep fallback */ });
@@ -342,7 +351,7 @@ export const LandingPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
       if (!res.ok) { setPayError(body.message ?? t('checkout.accountCreateFailed')); return; }
       sessionStorage.removeItem('monar_pending');
       sessionStorage.removeItem('monar_checkout');
-      setStep('success');
+      setStep('verify');
     } catch {
       setPayError(t('setup.errorNetwork'));
     } finally {
@@ -438,8 +447,14 @@ export const LandingPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {plans.map((plan, i) => {
-                const planFeatures = plan.features ?? (t(`plans.${plan.id}.features`, { returnObjects: true }) as string[]);
-                const planDescription = plan.description ?? t(`plans.${plan.id}.description`);
+                const translatedFeatures = t(`plans.${plan.id}.features`, { returnObjects: true, defaultValue: [] }) as string[];
+                const translatedDescription = t(`plans.${plan.id}.description`, { defaultValue: '' }) as string;
+                const planFeatures = isAr
+                  ? (plan.featuresAr?.length ? plan.featuresAr : (translatedFeatures.length ? translatedFeatures : plan.features))
+                  : (plan.features?.length ? plan.features : translatedFeatures);
+                const planDescription = isAr
+                  ? (plan.descriptionAr || translatedDescription || plan.description)
+                  : (plan.description || translatedDescription);
                 return (
                   <motion.div key={plan.id} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
                     className={`relative flex flex-col rounded-3xl p-7 border transition-all ${plan.popular
@@ -743,6 +758,11 @@ export const LandingPage = ({ onLoginClick }: { onLoginClick: () => void }) => {
         </div>
       </div>
     );
+  }
+
+  // ── VERIFY ─────────────────────────────────────────────────────────────────
+  if (step === 'verify' && pending) {
+    return <VerifyEmailScreen email={pending.email} onVerified={() => setStep('success')} />;
   }
 
   // ── SUCCESS ────────────────────────────────────────────────────────────────

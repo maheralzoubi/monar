@@ -45,12 +45,12 @@ export const AdminTable = () => {
     try {
       const res = await authFetch('/api/owner/admins', { method: 'POST', body: JSON.stringify(form) });
       const data = await res.json();
-      if (!res.ok) { setFormError(data.message ?? 'Failed to create admin'); return; }
+      if (!res.ok) { setFormError(data.message ?? t('admins.panel.createFailed')); return; }
       setAdmins(prev => [data, ...prev]);
       setShowPanel(false);
       setForm(emptyForm());
     } catch {
-      setFormError('Network error. Please try again.');
+      setFormError(t('admins.panel.networkError'));
     } finally {
       setFormLoading(false);
     }

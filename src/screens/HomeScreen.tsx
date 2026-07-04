@@ -45,17 +45,16 @@ const RestaurantLogo = memo(({ logo, name }: { logo?: string; name: string }) =>
   return <img src={logo} alt={name} className="w-full h-full object-cover" onError={() => setError(true)} />;
 });
 
-const FALLBACK_PROMOS = [
-  { title: 'Free Pickup',   subtitle: 'All orders this week', emoji: '🛍️' },
-  { title: '20% Off Mains', subtitle: 'On orders over $30',   emoji: '🎉' },
-  { title: 'New Arrivals',  subtitle: 'Try our latest menu',  emoji: '✨' },
-];
-
-
 export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }: Props) => {
   const { t, i18n } = useTranslation();
   const fmt = useFmt();
   const isRTL = i18n.language === 'ar';
+
+  const FALLBACK_PROMOS = [
+    { title: t('home.promos.freePickup.title'),   subtitle: t('home.promos.freePickup.subtitle'),   emoji: '🛍️' },
+    { title: t('home.promos.offMains.title'),     subtitle: t('home.promos.offMains.subtitle'),     emoji: '🎉' },
+    { title: t('home.promos.newArrivals.title'),  subtitle: t('home.promos.newArrivals.subtitle'),  emoji: '✨' },
+  ];
 
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
@@ -204,7 +203,7 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
                   }`}
                 >
                   <span className="text-2xl leading-none">{cat.emoji}</span>
-                  <span className="text-[10px] font-extrabold tracking-wide leading-none">{cat.key}</span>
+                  <span className="text-[10px] font-extrabold tracking-wide leading-none">{t(`home.categories.${cat.key}`, { defaultValue: cat.key })}</span>
                   <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none ${
                     active ? 'bg-white/20 text-white' : 'bg-surface-container-high text-on-surface-variant'
                   }`}>
@@ -234,7 +233,7 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
                     <span className="text-[10px] font-bold text-on-surface-variant uppercase">#{order._id?.slice(-4).toUpperCase()}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                       order.status === 'Delivered' ? 'bg-primary/20 text-primary' : 'bg-surface-container-high text-on-surface-variant'
-                    }`}>{order.status}</span>
+                    }`}>{t(`status.${order.status}`, { defaultValue: order.status })}</span>
                   </div>
                   <p className="text-xs font-bold truncate">{order.items?.slice(0,2).map((i: any) => i.name).join(', ')}</p>
                   <div className="flex items-center justify-between mt-2">
@@ -272,10 +271,10 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
           ) : filteredRestaurants.length === 0 ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16 text-on-surface-variant">
               <p className="text-5xl mb-4">🍽️</p>
-              <p className="text-sm font-medium">{searchQuery || selectedCategory !== 'All' ? t('restaurantList.noFound') : t('app.noRestaurants')}</p>
+              <p className="text-sm font-medium">{searchQuery || selectedCategory !== 'All' ? t('restaurants.noFound') : t('app.noRestaurants')}</p>
               {selectedCategory !== 'All' && (
                 <button onClick={() => setSelectedCategory('All')} className="mt-3 text-xs text-primary font-bold">
-                  Clear filter
+                  {t('app.clearFilter')}
                 </button>
               )}
             </motion.div>

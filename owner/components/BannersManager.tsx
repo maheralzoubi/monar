@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { ownerFetch } from '../../src/lib/ownerAuth';
 
 interface Banner {
@@ -14,6 +15,7 @@ interface Banner {
 const EMPTY: Omit<Banner, '_id'> = { title: '', subtitle: '', emoji: '🛍️', isActive: true, sortOrder: 0 };
 
 export const BannersManager = () => {
+  const { t } = useTranslation();
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,7 +31,7 @@ export const BannersManager = () => {
       const res = await ownerFetch('/api/owner/banners');
       if (!res.ok) throw new Error();
       setBanners(await res.json());
-    } catch { setError('Failed to load banners.'); }
+    } catch { setError(t('banners.loadFailed')); }
     finally { setLoading(false); }
   };
 
@@ -52,7 +54,7 @@ export const BannersManager = () => {
       if (!res.ok) throw new Error();
       await load();
       closePanel();
-    } catch { setError('Failed to save. Try again.'); }
+    } catch { setError(t('banners.saveFailed')); }
     finally { setSaving(false); }
   };
 
@@ -60,7 +62,7 @@ export const BannersManager = () => {
     try {
       await ownerFetch(`/api/owner/banners/${b._id}`, { method: 'PATCH', body: JSON.stringify({ isActive: !b.isActive }) });
       await load();
-    } catch { setError('Failed to update.'); }
+    } catch { setError(t('banners.updateFailed')); }
   };
 
   const handleDelete = async (id: string) => {
@@ -68,7 +70,7 @@ export const BannersManager = () => {
       await ownerFetch(`/api/owner/banners/${id}`, { method: 'DELETE' });
       setDeleteId(null);
       await load();
-    } catch { setError('Failed to delete.'); }
+    } catch { setError(t('banners.deleteFailed')); }
   };
 
   const panelOpen = creating || !!editing;
@@ -78,11 +80,11 @@ export const BannersManager = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-headline font-extrabold">Home Banners</h2>
-          <p className="text-sm text-on-surface-variant mt-0.5">Manage the promo slider shown on the customer app home screen.</p>
+          <h2 className="text-2xl font-headline font-extrabold">{t('banners.heading')}</h2>
+          <p className="text-sm text-on-surface-variant mt-0.5">{t('banners.subtext')}</p>
         </div>
         <button onClick={openCreate} className="btn-gradient text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Add Banner
+          <Plus className="w-4 h-4" /> {t('banners.addBanner')}
         </button>
       </div>
 
@@ -91,7 +93,7 @@ export const BannersManager = () => {
       {/* Preview */}
       {banners.filter(b => b.isActive).length > 0 && (
         <div className="bg-surface-container rounded-2xl p-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Live Preview</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">{t('banners.livePreview')}</p>
           <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
             {banners.filter(b => b.isActive).map(b => (
               <div key={b._id} className="flex-shrink-0 w-64 bg-gradient-to-r from-primary to-primary-container rounded-2xl p-4 flex items-center justify-between">
@@ -112,7 +114,7 @@ export const BannersManager = () => {
       ) : banners.length === 0 ? (
         <div className="text-center py-16 text-on-surface-variant">
           <p className="text-4xl mb-3">📢</p>
-          <p className="text-sm">No banners yet. Add your first one.</p>
+          <p className="text-sm">{t('banners.noBanners')}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -125,10 +127,10 @@ export const BannersManager = () => {
                 {b.subtitle && <p className="text-xs text-on-surface-variant truncate">{b.subtitle}</p>}
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${b.isActive ? 'bg-primary/20 text-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
-                {b.isActive ? 'Active' : 'Hidden'}
+                {b.isActive ? t('banners.active') : t('banners.hidden')}
               </span>
               <div className="flex items-center gap-1 shrink-0">
-                <button onClick={() => handleToggle(b)} title={b.isActive ? 'Hide' : 'Show'} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center hover:bg-surface-container-highest transition-colors">
+                <button onClick={() => handleToggle(b)} title={b.isActive ? t('banners.hide') : t('banners.show')} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center hover:bg-surface-container-highest transition-colors">
                   {b.isActive ? <EyeOff className="w-4 h-4 text-on-surface-variant" /> : <Eye className="w-4 h-4 text-on-surface-variant" />}
                 </button>
                 <button onClick={() => openEdit(b)} className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center hover:bg-surface-container-highest transition-colors">
@@ -147,35 +149,35 @@ export const BannersManager = () => {
       {panelOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-surface rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
-            <h3 className="text-lg font-extrabold font-headline">{editing ? 'Edit Banner' : 'New Banner'}</h3>
+            <h3 className="text-lg font-extrabold font-headline">{editing ? t('banners.editBanner') : t('banners.newBanner')}</h3>
 
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Title *</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">{t('banners.titleLabel')}</label>
                 <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                  placeholder="e.g. Free Pickup"
+                  placeholder={t('banners.titlePlaceholder')}
                   className="mt-1 w-full bg-surface-container rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
               </div>
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Subtitle</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">{t('banners.subtitleLabel')}</label>
                 <input value={form.subtitle} onChange={e => setForm(f => ({ ...f, subtitle: e.target.value }))}
-                  placeholder="e.g. All orders this week"
+                  placeholder={t('banners.subtitlePlaceholder')}
                   className="mt-1 w-full bg-surface-container rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
               </div>
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Emoji</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">{t('banners.emojiLabel')}</label>
                 <input value={form.emoji} onChange={e => setForm(f => ({ ...f, emoji: e.target.value }))}
                   placeholder="🛍️"
                   className="mt-1 w-full bg-surface-container rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
               </div>
               <div>
-                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Order</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">{t('banners.orderLabel')}</label>
                 <input type="number" value={form.sortOrder} onChange={e => setForm(f => ({ ...f, sortOrder: Number(e.target.value) }))}
                   className="mt-1 w-full bg-surface-container rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
               </div>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={form.isActive} onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))} className="w-4 h-4 accent-primary" />
-                <span className="text-sm font-semibold">Show on home screen</span>
+                <span className="text-sm font-semibold">{t('banners.showOnHome')}</span>
               </label>
             </div>
 
@@ -191,10 +193,10 @@ export const BannersManager = () => {
             )}
 
             <div className="flex gap-3 pt-1">
-              <button onClick={closePanel} className="flex-1 py-2.5 rounded-xl bg-surface-container text-sm font-bold hover:bg-surface-container-high transition-colors">Cancel</button>
+              <button onClick={closePanel} className="flex-1 py-2.5 rounded-xl bg-surface-container text-sm font-bold hover:bg-surface-container-high transition-colors">{t('common.cancel')}</button>
               <button onClick={handleSave} disabled={saving || !form.title.trim()}
                 className="flex-1 py-2.5 rounded-xl btn-gradient text-white text-sm font-bold disabled:opacity-50">
-                {saving ? 'Saving…' : (editing ? 'Save Changes' : 'Create Banner')}
+                {saving ? t('common.saving') : (editing ? t('banners.saveChanges') : t('banners.createBanner'))}
               </button>
             </div>
           </div>
@@ -205,11 +207,11 @@ export const BannersManager = () => {
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-surface rounded-2xl p-6 w-full max-w-sm shadow-2xl space-y-4">
-            <h3 className="font-extrabold text-lg">Delete banner?</h3>
-            <p className="text-sm text-on-surface-variant">This will remove the banner from the home screen immediately.</p>
+            <h3 className="font-extrabold text-lg">{t('banners.deleteConfirmTitle')}</h3>
+            <p className="text-sm text-on-surface-variant">{t('banners.deleteConfirmBody')}</p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteId(null)} className="flex-1 py-2.5 rounded-xl bg-surface-container text-sm font-bold">Cancel</button>
-              <button onClick={() => handleDelete(deleteId)} className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold">Delete</button>
+              <button onClick={() => setDeleteId(null)} className="flex-1 py-2.5 rounded-xl bg-surface-container text-sm font-bold">{t('common.cancel')}</button>
+              <button onClick={() => handleDelete(deleteId)} className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold">{t('common.delete')}</button>
             </div>
           </div>
         </div>

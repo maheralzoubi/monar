@@ -103,7 +103,7 @@ export const OrdersScreen = ({ onOpenTracking }: Props) => {
                     <div className="flex items-center gap-2">
                       <motion.span key={order.status} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                         className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${STATUS_COLORS[order.status] || 'bg-surface-container-high text-on-surface-variant'}`}>
-                        {order.status}
+                        {t(`status.${order.status}`, { defaultValue: order.status })}
                       </motion.span>
                       <ChevronRight className={`w-4 h-4 text-on-surface-variant/40 ${isRTL ? 'rotate-180' : ''}`} />
                     </div>
