@@ -277,6 +277,7 @@ export const Settings = () => {
                     <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60 ms-4">{t('settings.profile.emailAddress')}</label>
                     <input
                       type="email"
+                      dir="ltr"
                       value={profile.email}
                       disabled
                       className="w-full bg-surface-container-highest border-none rounded-2xl py-4 px-6 text-sm font-medium text-on-surface-variant/50 cursor-not-allowed shadow-sm"
@@ -286,6 +287,7 @@ export const Settings = () => {
                     <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60 ms-4">{t('settings.profile.phoneNumber')}</label>
                     <input
                       type="tel"
+                      dir="ltr"
                       value={form.phone}
                       onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                       placeholder="+1 (555) 000-0000"
@@ -390,6 +392,7 @@ export const Settings = () => {
                   <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60">{label}</label>
                   <input
                     type={type}
+                    dir={type === 'tel' || type === 'email' ? 'ltr' : undefined}
                     value={(restaurantInfo as any)[key]}
                     onChange={e => setRestaurantInfo(r => ({ ...r, [key]: e.target.value }))}
                     placeholder={placeholder}

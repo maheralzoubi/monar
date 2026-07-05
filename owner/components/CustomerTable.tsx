@@ -12,7 +12,6 @@ interface Subscriber {
   _id: string;
   name: string;
   email: string;
-  restaurantName?: string;
   plan?: PlanId;
   planBilling?: Billing;
   planActivatedAt?: string;
@@ -162,8 +161,7 @@ export const CustomerTable = ({ isSuperAdmin }: Props) => {
   const filtered = subscribers.filter(s => {
     const matchSearch =
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.restaurantName ?? '').toLowerCase().includes(searchQuery.toLowerCase());
+      s.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchStatus = filterStatus === 'all' || s.status === filterStatus;
     return matchSearch && matchStatus;
   });
@@ -173,7 +171,6 @@ export const CustomerTable = ({ isSuperAdmin }: Props) => {
 
   const tableHeaders = [
     t('customers.tableHeaders.subscriber'),
-    t('customers.tableHeaders.restaurant'),
     t('customers.tableHeaders.plan'),
     t('customers.tableHeaders.joined'),
     t('customers.tableHeaders.status'),
@@ -247,10 +244,6 @@ export const CustomerTable = ({ isSuperAdmin }: Props) => {
                             <p className="text-xs text-on-surface-variant">{s.email}</p>
                           </div>
                         </div>
-                      </td>
-
-                      <td className="p-5 text-sm font-medium text-on-surface-variant">
-                        {s.restaurantName ?? '—'}
                       </td>
 
                       <td className="p-5">

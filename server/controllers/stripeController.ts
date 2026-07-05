@@ -12,9 +12,9 @@ export const createIntent = async (req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    const { plan, billing, name, email, restaurantName } = req.body as Record<string, string>;
+    const { plan, billing, name, email } = req.body as Record<string, string>;
 
-    if (!plan || !billing || !name?.trim() || !email?.trim() || !restaurantName?.trim()) {
+    if (!plan || !billing || !name?.trim() || !email?.trim()) {
       res.status(400).json({ message: 'All fields are required.' });
       return;
     }
@@ -55,7 +55,7 @@ export const createIntent = async (req: Request, res: Response, next: NextFuncti
       customer = await stripe.customers.create({
         email: email.toLowerCase().trim(),
         name: name.trim(),
-        metadata: { restaurantName: restaurantName.trim(), plan, billing },
+        metadata: { plan, billing },
       });
     }
 

@@ -3,6 +3,7 @@ import { requireOwnerAccess, requireSuperAdmin } from '../middleware/auth';
 import {
   getRestaurants, createRestaurant, getRestaurant,
   updateRestaurant, updateRestaurantStatus, deleteRestaurant,
+  getAdmins, createAdmin, updateAdmin, deleteAdmin,
   getOwnerAnalytics,
   getSubscribers, updateCustomerStatus, deleteCustomer,
   updateCustomerPlan,
@@ -21,6 +22,12 @@ router.get('/restaurants/:id', getRestaurant);
 router.patch('/restaurants/:id', updateRestaurant);
 router.patch('/restaurants/:id/status', updateRestaurantStatus);
 router.delete('/restaurants/:id', deleteRestaurant);
+
+// Restaurant admin/staff management
+router.get('/admins', getAdmins);
+router.post('/admins', createAdmin);
+router.patch('/admins/:id', updateAdmin);
+router.delete('/admins/:id', deleteAdmin);
 
 // Analytics
 router.get('/analytics', getOwnerAnalytics);
