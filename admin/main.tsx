@@ -20,6 +20,7 @@ function DashboardApp() {
         onLogin={() => setAuthed(true)}
         onBack={() => {}}
         onTokenSave={setToken}
+        appId="admin"
         title={t('login.title')}
         subtitle={t('login.subtitle')}
         icon="utensils"
