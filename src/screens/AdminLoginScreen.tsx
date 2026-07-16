@@ -25,7 +25,6 @@ const ERROR_CODE_KEYS: Record<string, string> = {
   VALIDATION_ERROR: 'login.errors.validation',
   EMAIL_NOT_VERIFIED: 'login.errors.emailNotVerified',
   WRONG_APP: 'login.errors.wrongApp',
-  NO_RESTAURANT: 'login.errors.noRestaurant',
 };
 
 export const AdminLoginScreen = ({

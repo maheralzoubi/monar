@@ -103,10 +103,8 @@ export const signupStart = async (req: Request, res: Response, next: NextFunctio
 };
 
 // Which roles each app's login screen is allowed to authenticate.
-// 'owner' is allowed into the admin dashboard too, scoped to a restaurant they
-// own (resolved below), so one set of credentials can manage both.
 const APP_ALLOWED_ROLES: Record<string, string[]> = {
-  admin: ['admin', 'staff', 'owner'],
+  admin: ['admin', 'staff'],
   owner: ['owner', 'superadmin'],
 };
 
@@ -119,8 +117,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       return;
     }
 
-    // Reject accounts logging into the wrong app (e.g. an admin account on the
-    // owner panel) with a clear message, before anything else.
+    // Reject accounts logging into the wrong app (e.g. an owner account on the
+    // restaurant admin dashboard) with a clear message, before anything else.
     const allowedRoles = app ? APP_ALLOWED_ROLES[app] : undefined;
     if (allowedRoles && !allowedRoles.includes(user.role)) {
       res.status(403).json({ code: 'WRONG_APP', message: 'This account cannot sign in here.' });
@@ -132,21 +130,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       return;
     }
 
-    // An 'owner' role has no restaurantId of its own (they can own several);
-    // logging into the admin dashboard scopes their session to one of them.
-    let effectiveRestaurantId = user.restaurantId;
-    if (app === 'admin' && user.role === 'owner') {
-      const restaurant = await Restaurant.findOne({ ownerId: user._id }).sort({ createdAt: 1 });
-      if (!restaurant) {
-        res.status(403).json({ code: 'NO_RESTAURANT', message: 'You don\'t have a restaurant yet. Create one from the Owner Panel first.' });
-        return;
-      }
-      effectiveRestaurantId = restaurant._id as any;
-    }
-
-    // Block login if the resolved restaurant is inactive
-    if (effectiveRestaurantId) {
-      const restaurant = await Restaurant.findById(effectiveRestaurantId).select('status');
+    // Block admin login if their restaurant is inactive
+    if (user.restaurantId) {
+      const restaurant = await Restaurant.findById(user.restaurantId).select('status');
       if (!restaurant || restaurant.status === 'inactive') {
         res.status(403).json({ code: 'RESTAURANT_INACTIVE', message: 'Restaurant account is inactive. Please contact the platform owner.' });
         return;
@@ -154,7 +140,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role, restaurantId: effectiveRestaurantId?.toString() },
+      { id: user._id, email: user.email, role: user.role, restaurantId: user.restaurantId?.toString() },
       env.JWT_SECRET,
       { expiresIn: env.JWT_EXPIRES_IN as any }
     );
@@ -163,7 +149,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       user: {
         id: user._id, email: user.email, role: user.role,
         name: user.name, title: user.title, avatar: user.avatar,
-        restaurantId: effectiveRestaurantId,
+        restaurantId: user.restaurantId,
       },
     });
   } catch (e) { next(e); }

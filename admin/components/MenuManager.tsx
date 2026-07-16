@@ -144,6 +144,7 @@ export const MenuManager = () => {
 
   const [newItem, setNewItem] = useState<Partial<MenuItem>>(emptyItem());
   const addImg = useImageUpload(url => setNewItem(p => ({ ...p, image: url })));
+  const [addError, setAddError] = useState('');
 
   const [editItem, setEditItem] = useState<Partial<MenuItem> & { id?: string }>(emptyItem());
   const editImg = useImageUpload(url => setEditItem(p => ({ ...p, image: url })));
@@ -190,7 +191,7 @@ export const MenuManager = () => {
     return () => window.removeEventListener('popstate', applyNav);
   }, [items]);
 
-  const openAddView = () => { setView('add'); pushNavParam('menuView', 'add'); };
+  const openAddView = () => { setAddError(''); setView('add'); pushNavParam('menuView', 'add'); };
   const closeAddView = () => { goBack(); };
 
   const openPanel = (p: Panel) => setPanel(prev => prev === p ? 'none' : p);
@@ -199,10 +200,14 @@ export const MenuManager = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newItem.name?.trim()) { setAddError(t('menu.nameRequired')); return; }
+    if (!newItem.category) { setAddError(t('menu.categoryRequired')); return; }
+    setAddError('');
     try {
       const res = await authFetch('/api/menu', { method: 'POST', body: JSON.stringify(newItem) });
-      if (res.ok) { closeAddView(); fetchItems(); setNewItem(emptyItem()); }
-    } catch (e) { console.error(e); }
+      if (!res.ok) { const d = await res.json(); setAddError(d.message ?? t('menu.saveFailed')); return; }
+      closeAddView(); fetchItems(); setNewItem(emptyItem());
+    } catch { setAddError(t('menu.networkError')); }
   };
 
   const handleEditSave = async (e: React.FormEvent) => {
@@ -268,13 +273,13 @@ export const MenuManager = () => {
         <div className="flex justify-between items-end mb-12">
           <div>
             <nav className="flex items-center gap-2 text-xs font-medium text-on-surface-variant/60 mb-2 uppercase tracking-widest">
-              <button onClick={() => { closeAddView(); setNewItem(emptyItem()); }} className="hover:text-primary transition-colors">{t('menu.breadcrumbMenu')}</button>
+              <button onClick={() => { closeAddView(); setNewItem(emptyItem()); setAddError(''); }} className="hover:text-primary transition-colors">{t('menu.breadcrumbMenu')}</button>
               <ChevronRight className="w-3 h-3 rtl:scale-x-[-1]" /><span className="text-primary">{t('menu.breadcrumbNew')}</span>
             </nav>
             <h2 className="text-4xl font-headline font-extrabold tracking-tight">{t('menu.addNewDish')}</h2>
           </div>
           <div className="flex gap-4">
-            <button onClick={() => { closeAddView(); setNewItem(emptyItem()); }}
+            <button onClick={() => { closeAddView(); setNewItem(emptyItem()); setAddError(''); }}
               className="px-8 py-3 rounded-xl font-semibold bg-surface-container-high hover:bg-surface-container-highest transition-all">
               {t('menu.cancel')}
             </button>
@@ -318,6 +323,12 @@ export const MenuManager = () => {
                   className="w-full bg-surface-container-lowest border-none rounded-xl py-4 px-6 leading-relaxed focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/30"
                   value={newItem.description} onChange={e => setNewItem({ ...newItem, description: e.target.value })} />
               </div>
+              <AnimatePresence>
+                {addError && (
+                  <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                    className="text-sm text-error bg-error/5 border border-error/20 rounded-xl px-4 py-3">{addError}</motion.p>
+                )}
+              </AnimatePresence>
             </section>
             <section className="space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-widest text-on-surface-variant px-1">{t('menu.dishPhoto')}</h3>
