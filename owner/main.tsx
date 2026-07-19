@@ -22,8 +22,10 @@ function OwnerApp() {
   const { t } = useTranslation();
 
   // Attach nav state to the current history entry without touching the URL on first load.
+  // Merge rather than overwrite: SuperAdminDashboard's own mount effect may already
+  // have written { tab, restaurant } into this same entry's state.
   useEffect(() => {
-    window.history.replaceState({ view }, '', window.location.href);
+    window.history.replaceState({ ...window.history.state, view }, '', window.location.href);
   }, []);
 
   useEffect(() => {

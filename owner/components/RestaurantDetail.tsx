@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ToggleLeft, ToggleRight, Trash2, Pencil, X, Check, Building2, Users, ShoppingBag, DollarSign, Star, Calendar, Utensils } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
-import { ownerFetch as authFetch } from '../../src/lib/ownerAuth';
+import { ownerFetch as authFetch, getOwnerToken } from '../../src/lib/ownerAuth';
 import { formatCurrency } from '../../src/lib/currency';
 import { PhoneInput } from './PhoneInput';
+import { LogoUrlField } from '../../src/components/LogoUrlField';
 import { CUISINE_OPTIONS } from '../lib/cuisineOptions';
 import { AdminTable } from './AdminTable';
 
@@ -225,11 +226,9 @@ export const RestaurantDetail = ({ restaurantId, onBack, onDeleted }: Props) => 
                   <input value={editForm.address} onChange={e => setEditForm(f => ({ ...f, address: e.target.value }))}
                     className="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">{t('restaurants.panel.logoUrl')}</label>
-                  <input value={editForm.logo} onChange={e => setEditForm(f => ({ ...f, logo: e.target.value }))}
-                    className="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
-                </div>
+                <LogoUrlField label={t('restaurants.panel.logoUrl')} value={editForm.logo}
+                  onChange={v => setEditForm(f => ({ ...f, logo: v }))} getToken={getOwnerToken}
+                  uploadTitle={t('restaurants.panel.uploadFromGallery')} />
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">{t('restaurants.panel.cuisineTypes')}</label>
                   <div className="flex flex-wrap gap-2 pt-1">

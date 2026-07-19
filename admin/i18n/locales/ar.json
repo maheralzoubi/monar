@@ -105,6 +105,7 @@
     "noActiveOrders": "لا توجد طلبات نشطة للعرض.",
     "startCooking": "ابدأ الطهي",
     "markReady": "تحديد كجاهز",
+    "awaitingPickup": "بانتظار التسليم",
     "archiveConfirmPrefix": "أرشفة جميع",
     "archiveConfirmSuffix": "من طلبات اليوم؟ ستنتقل إلى الأرشيف وتغادر التغذية الحية.",
     "archiving": "جاري الأرشفة...",

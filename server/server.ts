@@ -30,7 +30,9 @@ async function startServer() {
   // Stripe webhook needs raw body — register before express.json()
   app.use('/api/stripe', stripeRouter);
 
-  app.use(express.json());
+  // Uploaded images travel as base64 data URIs in JSON bodies (up to ~5MB files,
+  // ~33% larger once base64-encoded), so the default 100kb body limit isn't enough.
+  app.use(express.json({ limit: '10mb' }));
 
   app.get('/health', async (_req, res) => {
     const mongoose = await import('mongoose').then(m => m.default).catch(() => null);

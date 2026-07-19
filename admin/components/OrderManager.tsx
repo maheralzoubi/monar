@@ -207,10 +207,16 @@ export const OrderManager = () => {
                   ))}
                 </div>
                 <div className="p-4 bg-surface-container-high/50">
-                  <button onClick={() => handleUpdateStatus(order._id, order.status === 'Pending' ? 'Preparing' : 'Delivered')}
-                    className="w-full py-3 rounded-xl btn-gradient text-white font-bold text-sm shadow-lg shadow-primary/10 active:scale-95 transition-all">
-                    {order.status === 'Pending' ? t('orders.startCooking') : t('orders.markReady')}
-                  </button>
+                  {order.status === 'Ready' ? (
+                    <div className="w-full py-3 rounded-xl bg-surface-container-highest text-on-surface-variant font-bold text-sm text-center">
+                      {t('orders.awaitingPickup')}
+                    </div>
+                  ) : (
+                    <button onClick={() => handleUpdateStatus(order._id, order.status === 'Pending' ? 'Preparing' : 'Ready')}
+                      className="w-full py-3 rounded-xl btn-gradient text-white font-bold text-sm shadow-lg shadow-primary/10 active:scale-95 transition-all">
+                      {order.status === 'Pending' ? t('orders.startCooking') : t('orders.markReady')}
+                    </button>
+                  )}
                 </div>
               </motion.div>
             ))}

@@ -310,6 +310,7 @@
       "phone": "Phone",
       "address": "Address",
       "logoUrl": "Logo URL (optional)",
+      "uploadFromGallery": "Upload from gallery",
       "adminAccount": "Admin Account",
       "adminAccountNote": "This person will log into the restaurant admin dashboard",
       "adminName": "Admin Full Name",

@@ -51,7 +51,10 @@ export const SuperAdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [showAccount, setShowAccount] = useState(false);
 
   useEffect(() => {
-    window.history.replaceState({ tab: activeTab, restaurant: selectedRestaurant } satisfies NavState, '', window.location.href);
+    window.history.replaceState(
+      { ...window.history.state, tab: activeTab, restaurant: selectedRestaurant } satisfies NavState,
+      '', window.location.href
+    );
   }, []);
 
   useEffect(() => {
@@ -66,14 +69,15 @@ export const SuperAdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
 
   const pushNav = useCallback((next: NavState, replace: boolean) => {
     const url = buildNavSearch(next);
-    if (replace) window.history.replaceState(next, '', url);
-    else window.history.pushState(next, '', url);
+    const state = { ...window.history.state, ...next };
+    if (replace) window.history.replaceState(state, '', url);
+    else window.history.pushState(state, '', url);
   }, []);
 
   const changeTab = useCallback((tab: Tab) => {
     setActiveTab(tab);
     setSelectedRestaurant(null);
-    pushNav({ tab, restaurant: null }, true);
+    pushNav({ tab, restaurant: null }, false);
   }, [pushNav]);
 
   const selectRestaurant = useCallback((r: SelectedRestaurant) => {

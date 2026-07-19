@@ -45,15 +45,9 @@ export const Dashboard = ({ onLogout }: { onLogout: () => void }) => {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // Attach nav state to the current history entry without touching the URL on first load.
   useEffect(() => {
-    window.history.replaceState({ tab: activeTab }, '', window.location.href);
-  }, []);
-
-  useEffect(() => {
-    const onPopState = (e: PopStateEvent) => {
-      const state = e.state as { tab: DashboardTab } | null;
-      setActiveTab(state?.tab ?? parseTab(window.location.search));
+    const onPopState = () => {
+      setActiveTab(parseTab(window.location.search));
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);

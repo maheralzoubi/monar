@@ -6,13 +6,15 @@
 export function pushNavParam(key: string, value: string | null) {
   const url = new URL(window.location.href);
   if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
-  window.history.pushState(window.history.state, '', url);
+  const state = { ...(window.history.state || {}), [key]: value };
+  window.history.pushState(state, '', url);
 }
 
 export function replaceNavParam(key: string, value: string | null) {
   const url = new URL(window.location.href);
   if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
-  window.history.replaceState(window.history.state, '', url);
+  const state = { ...(window.history.state || {}), [key]: value };
+  window.history.replaceState(state, '', url);
 }
 
 export function goBack() {

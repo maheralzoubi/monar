@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback, FormEvent } from 'react';
 import { Plus, X, Eye, EyeOff, Loader, ToggleLeft, ToggleRight, Trash2, Search, Building2, AlertCircle, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
-import { ownerFetch as authFetch, isSuperAdmin } from '../../src/lib/ownerAuth';
+import { ownerFetch as authFetch, isSuperAdmin, getOwnerToken } from '../../src/lib/ownerAuth';
 import { PhoneInput } from './PhoneInput';
+import { LogoUrlField } from '../../src/components/LogoUrlField';
 import { CUISINE_OPTIONS } from '../lib/cuisineOptions';
 
 interface Restaurant {
@@ -300,7 +301,6 @@ export const RestaurantList = ({ onSelect }: Props) => {
                   </div>
                   {[
                     { labelKey: 'restaurants.panel.address', key: 'address', type: 'text', required: false, placeholder: '123 Main St, City' },
-                    { labelKey: 'restaurants.panel.logoUrl', key: 'logo', type: 'url', required: false, placeholder: 'https://...' },
                   ].map(({ labelKey, key, type, required, placeholder }) => (
                     <div key={key} className="space-y-1.5 mb-4">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">{t(labelKey)}</label>
@@ -309,6 +309,11 @@ export const RestaurantList = ({ onSelect }: Props) => {
                         className="w-full bg-surface-container-low border-none rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
                     </div>
                   ))}
+                  <div className="mb-4">
+                    <LogoUrlField label={t('restaurants.panel.logoUrl')} value={form.logo}
+                      onChange={v => setForm(f => ({ ...f, logo: v }))} getToken={getOwnerToken}
+                      placeholder="https://..." uploadTitle={t('restaurants.panel.uploadFromGallery')} />
+                  </div>
                 </div>
 
                 {/* Cuisine types */}

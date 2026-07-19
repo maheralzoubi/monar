@@ -105,6 +105,7 @@
     "noActiveOrders": "No active orders to display.",
     "startCooking": "Start Cooking",
     "markReady": "Mark Ready",
+    "awaitingPickup": "Awaiting Pickup",
     "archiveConfirmPrefix": "Archive all",
     "archiveConfirmSuffix": "of today's orders? They will move to the archive and leave the live feed.",
     "archiving": "Archiving…",
