@@ -14,6 +14,25 @@ export const customerLoginSchema = z.object({
   password: z.string().min(1),
 });
 
+export const customerRegisterStartSchema = z.object({
+  restaurantId: z.string().min(1),
+  name: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(6),
+  phone: z.string().optional(),
+});
+
+export const customerVerifyEmailSchema = z.object({
+  restaurantId: z.string().min(1),
+  email: z.string().email(),
+  code: z.string().min(1),
+});
+
+export const customerResendVerificationSchema = z.object({
+  restaurantId: z.string().min(1),
+  email: z.string().email(),
+});
+
 export const customerUpdateSchema = z.object({
   name: z.string().min(1).optional(),
   phone: z.string().optional(),

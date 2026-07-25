@@ -1,9 +1,31 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { Customer } from '../models/Customer';
 import { Restaurant } from '../models/Restaurant';
+import { PendingCustomerSignup } from '../models/PendingCustomerSignup';
 import { env } from '../config/env';
 import { CustomerRequest } from '../middleware/customerAuth';
+import { sendVerificationCode } from '../services/emailService';
+
+const CODE_TTL_MS = 15 * 60 * 1000;
+const MAX_CODE_ATTEMPTS = 5;
+
+function hashCode(code: string): string {
+  return crypto.createHash('sha256').update(code).digest('hex');
+}
+
+function generateCode(): string {
+  return String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
+}
+
+function signCustomerToken(customer: { _id: unknown; email: string }, restaurantId: string) {
+  return jwt.sign(
+    { id: customer._id, email: customer.email, role: 'customer', restaurantId },
+    env.JWT_SECRET,
+    { expiresIn: env.JWT_EXPIRES_IN as any }
+  );
+}
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -75,5 +97,107 @@ export const updateMe = async (req: CustomerRequest, res: Response, next: NextFu
       { new: true, runValidators: true }
     ).select('-password');
     res.json(customer);
+  } catch (e) { next(e); }
+};
+
+// Called from checkout's inline "create account" form — sends a verification
+// code before any real Customer account exists. Verifying the code (via
+// verifyEmail) creates the account and logs the customer in.
+export const registerStart = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, email, password, phone, restaurantId } = req.body;
+    const normalizedEmail = String(email).toLowerCase().trim();
+
+    const restaurant = await Restaurant.findById(restaurantId).select('status');
+    if (!restaurant || restaurant.status === 'inactive') {
+      res.status(403).json({ message: 'This restaurant is currently unavailable.' });
+      return;
+    }
+
+    const existing = await Customer.findOne({ email: normalizedEmail, restaurantId });
+    if (existing) { res.status(409).json({ message: 'Email already registered at this restaurant' }); return; }
+
+    const code = generateCode();
+    await PendingCustomerSignup.findOneAndUpdate(
+      { email: normalizedEmail, restaurantId },
+      {
+        email: normalizedEmail, restaurantId, name: name.trim(), password, phone,
+        verificationCodeHash: hashCode(code),
+        verificationCodeExpires: new Date(Date.now() + CODE_TTL_MS),
+        verificationAttempts: 0,
+        createdAt: new Date(),
+      },
+      { upsert: true }
+    );
+    await sendVerificationCode(normalizedEmail, code);
+
+    res.status(201).json({ message: 'Verification code sent. Check your email.', email: normalizedEmail });
+  } catch (e) { next(e); }
+};
+
+export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, code, restaurantId } = req.body;
+    const normalizedEmail = String(email).toLowerCase().trim();
+
+    const pending = await PendingCustomerSignup.findOne({ email: normalizedEmail, restaurantId });
+    if (!pending || !pending.verificationCodeHash) {
+      res.status(400).json({ code: 'INVALID_CODE', message: 'Invalid verification code.' });
+      return;
+    }
+    if (!pending.verificationCodeExpires || pending.verificationCodeExpires < new Date()) {
+      res.status(400).json({ code: 'EXPIRED_CODE', message: 'This code has expired. Please request a new one.' });
+      return;
+    }
+    if (pending.verificationAttempts >= MAX_CODE_ATTEMPTS) {
+      pending.verificationCodeHash = undefined;
+      pending.verificationCodeExpires = undefined;
+      await pending.save();
+      res.status(400).json({ code: 'TOO_MANY_ATTEMPTS', message: 'Too many incorrect attempts. Please request a new code.' });
+      return;
+    }
+    if (hashCode(code) !== pending.verificationCodeHash) {
+      pending.verificationAttempts += 1;
+      await pending.save();
+      res.status(400).json({ code: 'INVALID_CODE', message: 'Incorrect code. Please try again.' });
+      return;
+    }
+
+    const existing = await Customer.findOne({ email: normalizedEmail, restaurantId });
+    if (existing) {
+      await PendingCustomerSignup.deleteOne({ _id: pending._id });
+      res.status(409).json({ message: 'Email already registered at this restaurant' });
+      return;
+    }
+
+    const customer = await Customer.create({
+      name: pending.name,
+      email: normalizedEmail,
+      password: pending.password,
+      phone: pending.phone,
+      restaurantId,
+    });
+    await PendingCustomerSignup.deleteOne({ _id: pending._id });
+
+    const token = signCustomerToken(customer, String(restaurantId));
+    res.status(201).json({ token, customer: { id: customer._id, name: customer.name, email: customer.email, restaurantId } });
+  } catch (e) { next(e); }
+};
+
+export const resendVerification = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, restaurantId } = req.body;
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const pending = await PendingCustomerSignup.findOne({ email: normalizedEmail, restaurantId });
+    if (pending) {
+      const code = generateCode();
+      pending.verificationCodeHash = hashCode(code);
+      pending.verificationCodeExpires = new Date(Date.now() + CODE_TTL_MS);
+      pending.verificationAttempts = 0;
+      await pending.save();
+      await sendVerificationCode(normalizedEmail, code);
+    }
+    // Always respond the same way, regardless of whether a pending signup exists, to avoid leaking which emails are registered.
+    res.json({ message: 'If that signup needs verification, a new code has been sent.' });
   } catch (e) { next(e); }
 };

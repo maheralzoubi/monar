@@ -15,6 +15,10 @@
       "evening": "Good evening"
     }
   },
+  "authGate": {
+    "browsePrompt": "Browse a restaurant to sign in and view this page.",
+    "browseCta": "Browse Restaurants"
+  },
   "mode": {
     "appName": "Monar",
     "toggleTheme": "Toggle theme",
@@ -263,7 +267,19 @@
     "createAccount": "Create Account",
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign in",
-    "registrationFailed": "Registration failed"
+    "registrationFailed": "Registration failed",
+    "verifyTitle": "Verify your email",
+    "verifySubtitle": "Enter the 6-digit code we sent to {{email}}",
+    "codePlaceholder": "000000",
+    "verifyButton": "Verify & Create Account",
+    "verifying": "Verifying...",
+    "resendCode": "Resend code",
+    "resendSent": "A new code has been sent.",
+    "errors": {
+      "invalidCode": "Incorrect code. Please try again.",
+      "expiredCode": "This code has expired. Please request a new one.",
+      "tooManyAttempts": "Too many incorrect attempts. Please request a new code."
+    }
   },
   "profile": {
     "orders": "Orders",
@@ -280,13 +296,13 @@
     "about": "About",
     "appVersion": "App Version",
     "helpSupport": "Help & Support",
-    "poweredBy": "Powered by Monar"
+    "poweredBy": "Powered by Monar",
+    "logout": "Log Out"
   },
   "welcome": {
     "tagline": "Pre-order · Skip the Wait",
     "description": "Browse restaurants, customize your order, and pick it up when it's ready — no waiting in line.",
     "getStarted": "Get Started",
-    "signIn": "Sign In",
     "continueAsGuest": "Continue as Guest"
   },
   "qrScanner": {

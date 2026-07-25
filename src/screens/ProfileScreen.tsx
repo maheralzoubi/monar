@@ -1,9 +1,22 @@
-import { Globe, Bell, HelpCircle, ChevronRight, Smartphone } from 'lucide-react';
+import { useState } from 'react';
+import { Globe, Bell, HelpCircle, ChevronRight, Smartphone, LogOut, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { getCustomerInfo, clearCustomerToken, CustomerInfo } from '../lib/customerAuth';
 
-export const ProfileScreen = () => {
+interface Props {
+  onLogout?: () => void;
+}
+
+export const ProfileScreen = ({ onLogout }: Props) => {
   const { t } = useTranslation();
+  const [customer, setCustomer] = useState<CustomerInfo | null>(() => getCustomerInfo());
+
+  const handleLogout = () => {
+    clearCustomerToken();
+    setCustomer(null);
+    onLogout?.();
+  };
 
   return (
     <div className="bg-surface min-h-screen">
@@ -13,6 +26,26 @@ export const ProfileScreen = () => {
       </div>
 
       <div className="px-5 space-y-4">
+        {/* Account */}
+        {customer && (
+          <div className="bg-surface-container rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+              <User className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold truncate">{customer.name}</p>
+              <p className="text-xs text-on-surface-variant truncate">{customer.email}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container-high text-red-500 text-xs font-bold active:scale-95 transition-transform shrink-0"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              {t('settings.logout')}
+            </button>
+          </div>
+        )}
+
         {/* Preferences */}
         <div className="bg-surface-container rounded-2xl overflow-hidden">
           <div className="px-4 py-3 border-b border-surface-container-high">

@@ -15,6 +15,10 @@
       "evening": "مساء الخير"
     }
   },
+  "authGate": {
+    "browsePrompt": "تصفّح مطعماً لتسجيل الدخول وعرض هذه الصفحة.",
+    "browseCta": "تصفّح المطاعم"
+  },
   "mode": {
     "appName": "Monar",
     "toggleTheme": "تغيير المظهر",
@@ -263,7 +267,19 @@
     "createAccount": "إنشاء حساب",
     "alreadyHaveAccount": "لديك حساب بالفعل؟",
     "signIn": "سجّل الدخول",
-    "registrationFailed": "فشل إنشاء الحساب"
+    "registrationFailed": "فشل إنشاء الحساب",
+    "verifyTitle": "تحقق من بريدك الإلكتروني",
+    "verifySubtitle": "أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى {{email}}",
+    "codePlaceholder": "000000",
+    "verifyButton": "تحقّق وأنشئ الحساب",
+    "verifying": "جارٍ التحقق...",
+    "resendCode": "إعادة إرسال الرمز",
+    "resendSent": "تم إرسال رمز جديد.",
+    "errors": {
+      "invalidCode": "رمز غير صحيح. حاول مرة أخرى.",
+      "expiredCode": "انتهت صلاحية هذا الرمز. يرجى طلب رمز جديد.",
+      "tooManyAttempts": "محاولات خاطئة كثيرة. يرجى طلب رمز جديد."
+    }
   },
   "profile": {
     "orders": "الطلبات",
@@ -280,13 +296,13 @@
     "about": "حول التطبيق",
     "appVersion": "إصدار التطبيق",
     "helpSupport": "المساعدة والدعم",
-    "poweredBy": "مشغّل بواسطة Monar"
+    "poweredBy": "مشغّل بواسطة Monar",
+    "logout": "تسجيل الخروج"
   },
   "welcome": {
     "tagline": "اطلب مسبقاً · تجاوز الانتظار",
     "description": "تصفح المطاعم، خصص طلبك، واستلمه عندما يكون جاهزاً — دون انتظار في الطابور.",
     "getStarted": "ابدأ الآن",
-    "signIn": "تسجيل الدخول",
     "continueAsGuest": "المتابعة كضيف"
   },
   "qrScanner": {

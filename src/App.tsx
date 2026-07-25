@@ -2,15 +2,20 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { CartProvider } from './contexts/CartContext';
+import { WelcomeScreen } from './screens/WelcomeScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { RestaurantScreen } from './screens/RestaurantScreen';
 import { CartScreen } from './screens/CartScreen';
 import { OrderTrackingScreen } from './screens/OrderTrackingScreen';
 import { OrdersScreen } from './screens/OrdersScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
+import { CustomerLoginScreen } from './screens/CustomerLoginScreen';
+import { CustomerRegisterScreen } from './screens/CustomerRegisterScreen';
 import { BottomNav } from './components/BottomNav';
 import { useRestaurant } from './hooks/useRestaurant';
 import { restoreDefaultColor } from './lib/branding';
+import { detectInitialRestaurant } from './services/AppEntryHandler';
+import { getCustomerToken } from './lib/customerAuth';
 
 export type MainTab = 'home' | 'orders' | 'profile';
 export type Overlay =
@@ -44,6 +49,48 @@ function buildSearch(state: NavState): string {
   return `?${params.toString()}`;
 }
 
+// Last restaurant the customer visited (set by RestaurantScreen/useRestaurant),
+// used to scope the login/register form gating the Orders & Profile tabs.
+function getLastRestaurantId(): string | null {
+  try {
+    const raw = localStorage.getItem('restaurant_context');
+    return raw ? JSON.parse(raw)?.restaurantId ?? null : null;
+  } catch { return null; }
+}
+
+function AuthGate({ onAuthed, onGoHome }: { onAuthed: () => void; onGoHome: () => void }) {
+  const { t } = useTranslation();
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const restaurantId = getLastRestaurantId();
+
+  if (!restaurantId) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center bg-surface">
+        <p className="text-sm text-on-surface-variant">{t('authGate.browsePrompt')}</p>
+        <button onClick={onGoHome} className="btn-gradient text-white px-6 py-3 rounded-2xl text-sm font-bold">
+          {t('authGate.browseCta')}
+        </button>
+      </div>
+    );
+  }
+
+  return mode === 'login' ? (
+    <CustomerLoginScreen
+      restaurantId={restaurantId}
+      onBack={onGoHome}
+      onRegisterClick={() => setMode('register')}
+      onSuccess={onAuthed}
+    />
+  ) : (
+    <CustomerRegisterScreen
+      restaurantId={restaurantId}
+      onBack={onGoHome}
+      onLoginClick={() => setMode('login')}
+      onSuccess={onAuthed}
+    />
+  );
+}
+
 function parseSearch(search: string): NavState {
   const params = new URLSearchParams(search);
   const rawTab = params.get('tab');
@@ -69,6 +116,10 @@ export default function App() {
   const isRTL = i18n.language === 'ar';
 
   const [splash, setSplash] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(() => !detectInitialRestaurant());
+  const dismissWelcome = useCallback(() => setShowWelcome(false), []);
+  const [, setAuthTick] = useState(0);
+  const refreshAuth = useCallback(() => setAuthTick(v => v + 1), []);
   const [mainTab, setMainTab] = useState<MainTab>(() => parseSearch(window.location.search).tab);
   const [overlay, setOverlay] = useState<Overlay>(() => parseSearch(window.location.search).overlay);
   const mainTabRef = useRef(mainTab);
@@ -166,59 +217,71 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
-      <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-surface flex flex-col select-none">
-        {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto" style={{ paddingBottom: '5rem' }}>
-          <AnimatePresence mode="wait">
-            {mainTab === 'home' && (
-              <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <HomeScreen onOpenRestaurant={openRestaurant} onOpenTracking={openTracking} onViewAllOrders={() => changeTab('orders')} />
+      {showWelcome ? (
+        <WelcomeScreen onRegister={dismissWelcome} onGuest={dismissWelcome} />
+      ) : (
+        <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-surface flex flex-col select-none">
+          {/* Tab Content */}
+          <div className="flex-1 overflow-y-auto" style={{ paddingBottom: '5rem' }}>
+            <AnimatePresence mode="wait">
+              {mainTab === 'home' && (
+                <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <HomeScreen onOpenRestaurant={openRestaurant} onOpenTracking={openTracking} onViewAllOrders={() => changeTab('orders')} />
+                </motion.div>
+              )}
+              {mainTab === 'orders' && (
+                <motion.div key="orders" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  {getCustomerToken() ? (
+                    <OrdersScreen onOpenTracking={openTracking} />
+                  ) : (
+                    <AuthGate onAuthed={refreshAuth} onGoHome={() => changeTab('home')} />
+                  )}
+                </motion.div>
+              )}
+              {mainTab === 'profile' && (
+                <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  {getCustomerToken() ? (
+                    <ProfileScreen onLogout={refreshAuth} />
+                  ) : (
+                    <AuthGate onAuthed={refreshAuth} onGoHome={() => changeTab('home')} />
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <BottomNav activeTab={mainTab} onTabChange={changeTab} onCartOpen={openCart} />
+
+          {/* Full-screen Overlays */}
+          <AnimatePresence>
+            {overlay?.type === 'restaurant' && (
+              <motion.div key="restaurant" className="fixed inset-0 z-40 bg-surface" {...slideUp}>
+                <RestaurantScreen
+                  restaurantId={overlay.id}
+                  restaurantName={overlay.name}
+                  restaurantLogo={overlay.logo}
+                  onBack={closeOverlay}
+                  onCartOpen={openCart}
+                />
               </motion.div>
             )}
-            {mainTab === 'orders' && (
-              <motion.div key="orders" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <OrdersScreen onOpenTracking={openTracking} />
+            {overlay?.type === 'cart' && (
+              <motion.div key="cart" className="fixed inset-0 z-50 bg-surface" {...slideUp}>
+                <CartScreen onBack={closeOverlay} onOrderPlaced={handleOrderPlaced} />
               </motion.div>
             )}
-            {mainTab === 'profile' && (
-              <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <ProfileScreen />
+            {overlay?.type === 'tracking' && (
+              <motion.div key="tracking" className="fixed inset-0 z-50 bg-surface" {...slideUp}>
+                <OrderTrackingScreen
+                  orderId={overlay.orderId}
+                  onClose={closeOverlay}
+                  onViewOrders={() => { restoreDefaultColor(); changeTab('orders'); }}
+                />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-
-        <BottomNav activeTab={mainTab} onTabChange={changeTab} onCartOpen={openCart} />
-
-        {/* Full-screen Overlays */}
-        <AnimatePresence>
-          {overlay?.type === 'restaurant' && (
-            <motion.div key="restaurant" className="fixed inset-0 z-40 bg-surface" {...slideUp}>
-              <RestaurantScreen
-                restaurantId={overlay.id}
-                restaurantName={overlay.name}
-                restaurantLogo={overlay.logo}
-                onBack={closeOverlay}
-                onCartOpen={openCart}
-              />
-            </motion.div>
-          )}
-          {overlay?.type === 'cart' && (
-            <motion.div key="cart" className="fixed inset-0 z-50 bg-surface" {...slideUp}>
-              <CartScreen onBack={closeOverlay} onOrderPlaced={handleOrderPlaced} />
-            </motion.div>
-          )}
-          {overlay?.type === 'tracking' && (
-            <motion.div key="tracking" className="fixed inset-0 z-50 bg-surface" {...slideUp}>
-              <OrderTrackingScreen
-                orderId={overlay.orderId}
-                onClose={closeOverlay}
-                onViewOrders={() => { restoreDefaultColor(); changeTab('orders'); }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      )}
     </CartProvider>
   );
 }

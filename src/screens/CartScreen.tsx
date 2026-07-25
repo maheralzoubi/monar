@@ -5,6 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { useCart } from '../contexts/CartContext';
 import { applyPrimaryColor } from '../lib/branding';
 import { formatCurrency } from '../lib/currency';
+import { getCustomerToken, getCustomerInfo, customerFetch } from '../lib/customerAuth';
+import { CustomerLoginScreen } from './CustomerLoginScreen';
+import { CustomerRegisterScreen } from './CustomerRegisterScreen';
 
 interface Props {
   onBack: () => void;
@@ -56,6 +59,7 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
   const [activeNote, setActiveNote] = useState<string | null>(null);
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState('');
+  const [authMode, setAuthMode] = useState<'login' | 'register' | null>(null);
 
   // Promo — shared across both modes
   const [promoInput, setPromoInput] = useState('');
@@ -108,13 +112,14 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
 
   const handlePlace = async () => {
     if (items.length === 0) return;
+    if (!getCustomerToken()) { setAuthMode('login'); return; }
     setError(''); setPlacing(true);
     try {
       const payload: Record<string, unknown> = {
         items: items.map(i => ({ ...i })),
         total: finalTotal,
         restaurantId,
-        customerName: 'Guest',
+        customerName: getCustomerInfo()?.name ?? 'Guest',
         order_source: 'CUSTOMER_APP',
         order_type: isDineIn ? 'DINE_IN' : 'PICKUP',
         payment_method: 'PAY_LATER',
@@ -127,9 +132,8 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
         payload.promoCode     = appliedPromo.code;
         payload.discount_type = 'CODE';
       }
-      const res = await fetch('/api/orders', {
+      const res = await customerFetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       if (!res.ok) { const d = await res.json(); setError(d.message || t('cart.orderFailed')); return; }
@@ -144,6 +148,27 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
     } catch { setError(t('common.networkError')); }
     finally { setPlacing(false); }
   };
+
+  if (authMode === 'login') {
+    return (
+      <CustomerLoginScreen
+        restaurantId={restaurantId!}
+        onBack={() => setAuthMode(null)}
+        onRegisterClick={() => setAuthMode('register')}
+        onSuccess={() => { setAuthMode(null); handlePlace(); }}
+      />
+    );
+  }
+  if (authMode === 'register') {
+    return (
+      <CustomerRegisterScreen
+        restaurantId={restaurantId!}
+        onBack={() => setAuthMode(null)}
+        onLoginClick={() => setAuthMode('login')}
+        onSuccess={() => { setAuthMode(null); handlePlace(); }}
+      />
+    );
+  }
 
   // Shared promo code block (used in both modes)
   const promoBlock = (
