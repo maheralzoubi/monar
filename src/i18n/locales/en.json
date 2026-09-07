@@ -15,10 +15,6 @@
       "evening": "Good evening"
     }
   },
-  "authGate": {
-    "browsePrompt": "Browse a restaurant to sign in and view this page.",
-    "browseCta": "Browse Restaurants"
-  },
   "mode": {
     "appName": "Monar",
     "toggleTheme": "Toggle theme",
@@ -67,11 +63,6 @@
       "Breakfast": "Breakfast",
       "Chicken": "Chicken",
       "Healthy": "Healthy"
-    },
-    "promos": {
-      "freePickup": { "title": "Free Pickup", "subtitle": "All orders this week" },
-      "offMains": { "title": "20% Off Mains", "subtitle": "On orders over $30" },
-      "newArrivals": { "title": "New Arrivals", "subtitle": "Try our latest menu" }
     }
   },
   "menu": {
@@ -110,8 +101,8 @@
   "payment": {
     "title": "Payment Method",
     "subtitle": "Choose your preferred way to pay",
-    "applePay": "Apple Pay",
-    "applePayDesc": "Instant & Secure",
+    "applePay": "Card at Pickup",
+    "applePayDesc": "Pay by card when you collect",
     "cash": "Cash at Table",
     "cashDesc": "Pay when served",
     "orderTotal": "Order Total",
@@ -303,6 +294,7 @@
     "tagline": "Pre-order · Skip the Wait",
     "description": "Browse restaurants, customize your order, and pick it up when it's ready — no waiting in line.",
     "getStarted": "Get Started",
+    "signIn": "Sign In",
     "continueAsGuest": "Continue as Guest"
   },
   "qrScanner": {
@@ -396,4 +388,3 @@
     "cart": "Cart"
   }
 }
-

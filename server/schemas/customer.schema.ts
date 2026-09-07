@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const customerRegisterSchema = z.object({
-  restaurantId: z.string().min(1),
+  restaurantId: z.string().min(1).optional(),
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
@@ -9,13 +9,13 @@ export const customerRegisterSchema = z.object({
 });
 
 export const customerLoginSchema = z.object({
-  restaurantId: z.string().min(1),
+  restaurantId: z.string().min(1).optional(),
   email: z.string().email(),
   password: z.string().min(1),
 });
 
 export const customerRegisterStartSchema = z.object({
-  restaurantId: z.string().min(1),
+  restaurantId: z.string().min(1).optional(),
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
@@ -23,13 +23,13 @@ export const customerRegisterStartSchema = z.object({
 });
 
 export const customerVerifyEmailSchema = z.object({
-  restaurantId: z.string().min(1),
+  restaurantId: z.string().min(1).optional(),
   email: z.string().email(),
   code: z.string().min(1),
 });
 
 export const customerResendVerificationSchema = z.object({
-  restaurantId: z.string().min(1),
+  restaurantId: z.string().min(1).optional(),
   email: z.string().email(),
 });
 

@@ -49,30 +49,23 @@ function buildSearch(state: NavState): string {
   return `?${params.toString()}`;
 }
 
-// Last restaurant the customer visited (set by RestaurantScreen/useRestaurant),
-// used to scope the login/register form gating the Orders & Profile tabs.
-function getLastRestaurantId(): string | null {
+// Restaurant the customer last visited, recorded on the account purely for
+// attribution. Accounts themselves are platform-wide, so signing in never
+// depends on this being set.
+function getLastRestaurantId(): string | undefined {
   try {
     const raw = localStorage.getItem('restaurant_context');
-    return raw ? JSON.parse(raw)?.restaurantId ?? null : null;
-  } catch { return null; }
+    return (raw ? JSON.parse(raw)?.restaurantId : null) ?? undefined;
+  } catch { return undefined; }
 }
 
-function AuthGate({ onAuthed, onGoHome }: { onAuthed: () => void; onGoHome: () => void }) {
-  const { t } = useTranslation();
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+function AuthGate({
+  initialMode = 'login',
+  onAuthed,
+  onGoHome,
+}: { initialMode?: 'login' | 'register'; onAuthed: () => void; onGoHome: () => void }) {
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const restaurantId = getLastRestaurantId();
-
-  if (!restaurantId) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-8 text-center bg-surface">
-        <p className="text-sm text-on-surface-variant">{t('authGate.browsePrompt')}</p>
-        <button onClick={onGoHome} className="btn-gradient text-white px-6 py-3 rounded-2xl text-sm font-bold">
-          {t('authGate.browseCta')}
-        </button>
-      </div>
-    );
-  }
 
   return mode === 'login' ? (
     <CustomerLoginScreen
@@ -118,6 +111,12 @@ export default function App() {
   const [splash, setSplash] = useState(true);
   const [showWelcome, setShowWelcome] = useState(() => !detectInitialRestaurant());
   const dismissWelcome = useCallback(() => setShowWelcome(false), []);
+  // Auth reached from the welcome screen, before any restaurant has been opened.
+  const [welcomeAuth, setWelcomeAuth] = useState<'login' | 'register' | null>(null);
+  const openWelcomeAuth = useCallback((mode: 'login' | 'register') => {
+    setShowWelcome(false);
+    setWelcomeAuth(mode);
+  }, []);
   const [, setAuthTick] = useState(0);
   const refreshAuth = useCallback(() => setAuthTick(v => v + 1), []);
   const [mainTab, setMainTab] = useState<MainTab>(() => parseSearch(window.location.search).tab);
@@ -218,7 +217,17 @@ export default function App() {
         )}
       </AnimatePresence>
       {showWelcome ? (
-        <WelcomeScreen onRegister={dismissWelcome} onGuest={dismissWelcome} />
+        <WelcomeScreen
+          onRegister={() => openWelcomeAuth('register')}
+          onSignIn={() => openWelcomeAuth('login')}
+          onGuest={dismissWelcome}
+        />
+      ) : welcomeAuth ? (
+        <AuthGate
+          initialMode={welcomeAuth}
+          onAuthed={() => { setWelcomeAuth(null); refreshAuth(); }}
+          onGoHome={() => setWelcomeAuth(null)}
+        />
       ) : (
         <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-surface flex flex-col select-none">
           {/* Tab Content */}

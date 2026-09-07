@@ -15,10 +15,6 @@
       "evening": "مساء الخير"
     }
   },
-  "authGate": {
-    "browsePrompt": "تصفّح مطعماً لتسجيل الدخول وعرض هذه الصفحة.",
-    "browseCta": "تصفّح المطاعم"
-  },
   "mode": {
     "appName": "Monar",
     "toggleTheme": "تغيير المظهر",
@@ -67,11 +63,6 @@
       "Breakfast": "فطور",
       "Chicken": "دجاج",
       "Healthy": "صحي"
-    },
-    "promos": {
-      "freePickup": { "title": "استلام مجاني", "subtitle": "لجميع الطلبات هذا الأسبوع" },
-      "offMains": { "title": "خصم 20% على الأطباق الرئيسية", "subtitle": "للطلبات فوق 30" },
-      "newArrivals": { "title": "وصل حديثاً", "subtitle": "جرّب أحدث أطباقنا" }
     }
   },
   "menu": {
@@ -110,8 +101,8 @@
   "payment": {
     "title": "طريقة الدفع",
     "subtitle": "اختر الطريقة التي تفضلها",
-    "applePay": "Apple Pay",
-    "applePayDesc": "فوري وآمن",
+    "applePay": "بطاقة عند الاستلام",
+    "applePayDesc": "ادفع بالبطاقة عند الاستلام",
     "cash": "نقداً عند الطاولة",
     "cashDesc": "ادفع عند التقديم",
     "orderTotal": "إجمالي الطلب",
@@ -303,6 +294,7 @@
     "tagline": "اطلب مسبقاً · تجاوز الانتظار",
     "description": "تصفح المطاعم، خصص طلبك، واستلمه عندما يكون جاهزاً — دون انتظار في الطابور.",
     "getStarted": "ابدأ الآن",
+    "signIn": "تسجيل الدخول",
     "continueAsGuest": "المتابعة كضيف"
   },
   "qrScanner": {

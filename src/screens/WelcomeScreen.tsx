@@ -4,12 +4,13 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 interface Props {
   onRegister: () => void;
+  onSignIn: () => void;
   onGuest: () => void;
 }
 
 const FOOD_EMOJIS = ['🍔', '🍕', '☕', '🍝', '🥗', '🍰', '🥤', '🍜'];
 
-export const WelcomeScreen = ({ onRegister, onGuest }: Props) => {
+export const WelcomeScreen = ({ onRegister, onSignIn, onGuest }: Props) => {
   const { t } = useTranslation();
 
   return (
@@ -72,6 +73,12 @@ export const WelcomeScreen = ({ onRegister, onGuest }: Props) => {
             className="w-full py-4 rounded-2xl btn-gradient text-white font-extrabold text-base shadow-xl shadow-primary/25 active:scale-95 transition-transform"
           >
             {t('welcome.getStarted')}
+          </button>
+          <button
+            onClick={onSignIn}
+            className="w-full py-4 rounded-2xl bg-surface-container text-on-surface font-bold text-base active:scale-95 transition-transform"
+          >
+            {t('welcome.signIn')}
           </button>
           <button
             onClick={onGuest}

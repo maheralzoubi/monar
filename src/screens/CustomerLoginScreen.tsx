@@ -8,7 +8,8 @@ interface Props {
   onSuccess: () => void;
   onBack: () => void;
   onRegisterClick: () => void;
-  restaurantId: string;
+  /** Only set when signing in from inside a restaurant; recorded for attribution. */
+  restaurantId?: string;
 }
 
 export const CustomerLoginScreen = ({ onSuccess, onBack, onRegisterClick, restaurantId }: Props) => {
@@ -29,7 +30,7 @@ export const CustomerLoginScreen = ({ onSuccess, onBack, onRegisterClick, restau
       const res = await fetch('/api/customer/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, restaurantId }),
+        body: JSON.stringify({ email, password, ...(restaurantId ? { restaurantId } : {}) }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.message ?? t('customerLogin.loginFailed')); return; }

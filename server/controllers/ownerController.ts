@@ -147,7 +147,9 @@ export const deleteRestaurant = async (req: Request, res: Response, next: NextFu
     const rid = r._id;
     await Promise.all([
       User.deleteMany({ restaurantId: rid }),
-      Customer.deleteMany({ restaurantId: rid }),
+      // Customer accounts are platform-wide, so they outlive the restaurant they
+      // signed up at — only clear the attribution.
+      Customer.updateMany({ restaurantId: rid }, { $unset: { restaurantId: '' } }),
       Order.deleteMany({ restaurantId: rid }),
       MenuItem.deleteMany({ restaurantId: rid }),
       Category.deleteMany({ restaurantId: rid }),

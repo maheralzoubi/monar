@@ -19,50 +19,50 @@ function generateCode(): string {
   return String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
 }
 
-function signCustomerToken(customer: { _id: unknown; email: string }, restaurantId: string) {
+function signCustomerToken(customer: { _id: unknown; email: string }) {
   return jwt.sign(
-    { id: customer._id, email: customer.email, role: 'customer', restaurantId },
+    { id: customer._id, email: customer.email, role: 'customer' },
     env.JWT_SECRET,
     { expiresIn: env.JWT_EXPIRES_IN as any }
   );
 }
 
+// restaurantId is optional everywhere below: accounts are platform-wide, and the
+// id is only recorded for attribution when the signup started inside a
+// restaurant. When one is supplied it still has to be a real, active restaurant.
+async function resolveAttribution(restaurantId?: string): Promise<string | undefined> {
+  if (!restaurantId) return undefined;
+  const restaurant = await Restaurant.findById(restaurantId).select('status');
+  if (!restaurant || restaurant.status === 'inactive') return undefined;
+  return String(restaurant._id);
+}
+
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, email, password, phone, restaurantId } = req.body;
-    if (!restaurantId) { res.status(400).json({ message: 'restaurantId is required' }); return; }
+    const normalizedEmail = String(email).toLowerCase().trim();
 
-    const restaurant = await Restaurant.findById(restaurantId).select('status');
-    if (!restaurant || restaurant.status === 'inactive') {
-      res.status(403).json({ message: 'This restaurant is currently unavailable.' });
-      return;
-    }
+    const existing = await Customer.findOne({ email: normalizedEmail });
+    if (existing) { res.status(409).json({ message: 'Email already registered' }); return; }
 
-    const existing = await Customer.findOne({ email, restaurantId });
-    if (existing) { res.status(409).json({ message: 'Email already registered at this restaurant' }); return; }
-
-    const customer = await Customer.create({ name, email, password, phone, restaurantId });
-    const token = jwt.sign(
-      { id: customer._id, email: customer.email, role: 'customer', restaurantId: restaurantId.toString() },
-      env.JWT_SECRET,
-      { expiresIn: env.JWT_EXPIRES_IN as any }
-    );
-    res.status(201).json({ token, customer: { id: customer._id, name: customer.name, email: customer.email, restaurantId } });
+    const customer = await Customer.create({
+      name, email: normalizedEmail, password, phone,
+      restaurantId: await resolveAttribution(restaurantId),
+    });
+    const token = signCustomerToken(customer);
+    res.status(201).json({
+      token,
+      customer: { id: customer._id, name: customer.name, email: customer.email },
+    });
   } catch (e) { next(e); }
 };
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password, restaurantId } = req.body;
-    if (!restaurantId) { res.status(400).json({ message: 'restaurantId is required' }); return; }
+    const { email, password } = req.body;
+    const normalizedEmail = String(email).toLowerCase().trim();
 
-    const restaurant = await Restaurant.findById(restaurantId).select('status');
-    if (!restaurant || restaurant.status === 'inactive') {
-      res.status(403).json({ message: 'This restaurant is currently unavailable.' });
-      return;
-    }
-
-    const customer = await Customer.findOne({ email, restaurantId });
+    const customer = await Customer.findOne({ email: normalizedEmail });
     if (!customer || !(await customer.comparePassword(password))) {
       res.status(401).json({ message: 'Invalid email or password' });
       return;
@@ -71,12 +71,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       res.status(403).json({ message: 'Account is locked. Please contact support.' });
       return;
     }
-    const token = jwt.sign(
-      { id: customer._id, email: customer.email, role: 'customer', restaurantId: restaurantId.toString() },
-      env.JWT_SECRET,
-      { expiresIn: env.JWT_EXPIRES_IN as any }
-    );
-    res.json({ token, customer: { id: customer._id, name: customer.name, email: customer.email, status: customer.status, restaurantId } });
+    const token = signCustomerToken(customer);
+    res.json({
+      token,
+      customer: { id: customer._id, name: customer.name, email: customer.email, status: customer.status },
+    });
   } catch (e) { next(e); }
 };
 
@@ -100,28 +99,23 @@ export const updateMe = async (req: CustomerRequest, res: Response, next: NextFu
   } catch (e) { next(e); }
 };
 
-// Called from checkout's inline "create account" form — sends a verification
-// code before any real Customer account exists. Verifying the code (via
-// verifyEmail) creates the account and logs the customer in.
+// Sends a verification code before any real Customer account exists. Verifying
+// the code (via verifyEmail) creates the account and logs the customer in.
 export const registerStart = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, email, password, phone, restaurantId } = req.body;
     const normalizedEmail = String(email).toLowerCase().trim();
 
-    const restaurant = await Restaurant.findById(restaurantId).select('status');
-    if (!restaurant || restaurant.status === 'inactive') {
-      res.status(403).json({ message: 'This restaurant is currently unavailable.' });
-      return;
-    }
-
-    const existing = await Customer.findOne({ email: normalizedEmail, restaurantId });
-    if (existing) { res.status(409).json({ message: 'Email already registered at this restaurant' }); return; }
+    const existing = await Customer.findOne({ email: normalizedEmail });
+    if (existing) { res.status(409).json({ message: 'Email already registered' }); return; }
 
     const code = generateCode();
     await PendingCustomerSignup.findOneAndUpdate(
-      { email: normalizedEmail, restaurantId },
+      { email: normalizedEmail },
       {
-        email: normalizedEmail, restaurantId, name: name.trim(), password, phone,
+        email: normalizedEmail,
+        restaurantId: await resolveAttribution(restaurantId),
+        name: name.trim(), password, phone,
         verificationCodeHash: hashCode(code),
         verificationCodeExpires: new Date(Date.now() + CODE_TTL_MS),
         verificationAttempts: 0,
@@ -137,10 +131,10 @@ export const registerStart = async (req: Request, res: Response, next: NextFunct
 
 export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, code, restaurantId } = req.body;
+    const { email, code } = req.body;
     const normalizedEmail = String(email).toLowerCase().trim();
 
-    const pending = await PendingCustomerSignup.findOne({ email: normalizedEmail, restaurantId });
+    const pending = await PendingCustomerSignup.findOne({ email: normalizedEmail });
     if (!pending || !pending.verificationCodeHash) {
       res.status(400).json({ code: 'INVALID_CODE', message: 'Invalid verification code.' });
       return;
@@ -163,10 +157,10 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    const existing = await Customer.findOne({ email: normalizedEmail, restaurantId });
+    const existing = await Customer.findOne({ email: normalizedEmail });
     if (existing) {
       await PendingCustomerSignup.deleteOne({ _id: pending._id });
-      res.status(409).json({ message: 'Email already registered at this restaurant' });
+      res.status(409).json({ message: 'Email already registered' });
       return;
     }
 
@@ -175,20 +169,23 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
       email: normalizedEmail,
       password: pending.password,
       phone: pending.phone,
-      restaurantId,
+      restaurantId: pending.restaurantId,
     });
     await PendingCustomerSignup.deleteOne({ _id: pending._id });
 
-    const token = signCustomerToken(customer, String(restaurantId));
-    res.status(201).json({ token, customer: { id: customer._id, name: customer.name, email: customer.email, restaurantId } });
+    const token = signCustomerToken(customer);
+    res.status(201).json({
+      token,
+      customer: { id: customer._id, name: customer.name, email: customer.email },
+    });
   } catch (e) { next(e); }
 };
 
 export const resendVerification = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, restaurantId } = req.body;
+    const { email } = req.body;
     const normalizedEmail = String(email).toLowerCase().trim();
-    const pending = await PendingCustomerSignup.findOne({ email: normalizedEmail, restaurantId });
+    const pending = await PendingCustomerSignup.findOne({ email: normalizedEmail });
     if (pending) {
       const code = generateCode();
       pending.verificationCodeHash = hashCode(code);

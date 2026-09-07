@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Globe, Bell, HelpCircle, ChevronRight, Smartphone, LogOut, User } from 'lucide-react';
+import { Globe, HelpCircle, ExternalLink, Smartphone, LogOut, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { getCustomerInfo, clearCustomerToken, CustomerInfo } from '../lib/customerAuth';
@@ -7,6 +7,9 @@ import { getCustomerInfo, clearCustomerToken, CustomerInfo } from '../lib/custom
 interface Props {
   onLogout?: () => void;
 }
+
+const SUPPORT_URL = 'https://www.monarllc.com/support';
+const APP_VERSION = '1.2';
 
 export const ProfileScreen = ({ onLogout }: Props) => {
   const { t } = useTranslation();
@@ -51,7 +54,7 @@ export const ProfileScreen = ({ onLogout }: Props) => {
           <div className="px-4 py-3 border-b border-surface-container-high">
             <p className="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant">{t('settings.preferences')}</p>
           </div>
-          <div className="px-4 py-4 flex items-center justify-between border-b border-surface-container-high">
+          <div className="px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-surface-container-high flex items-center justify-center">
                 <Globe className="w-4 h-4 text-on-surface-variant" />
@@ -59,15 +62,6 @@ export const ProfileScreen = ({ onLogout }: Props) => {
               <span className="text-sm font-semibold">{t('settings.language')}</span>
             </div>
             <LanguageSwitcher />
-          </div>
-          <div className="px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-surface-container-high flex items-center justify-center">
-                <Bell className="w-4 h-4 text-on-surface-variant" />
-              </div>
-              <span className="text-sm font-semibold">{t('settings.notifications')}</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-on-surface-variant/40 rtl:rotate-180" />
           </div>
         </div>
 
@@ -83,17 +77,22 @@ export const ProfileScreen = ({ onLogout }: Props) => {
               </div>
               <span className="text-sm font-semibold">{t('settings.appVersion')}</span>
             </div>
-            <span className="text-xs text-on-surface-variant font-medium">1.0.0</span>
+            <span className="text-xs text-on-surface-variant font-medium">{APP_VERSION}</span>
           </div>
-          <button className="w-full px-4 py-4 flex items-center justify-between active:bg-surface-container-high transition-colors">
+          <a
+            href={SUPPORT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full px-4 py-4 flex items-center justify-between active:bg-surface-container-high transition-colors"
+          >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-surface-container-high flex items-center justify-center">
                 <HelpCircle className="w-4 h-4 text-on-surface-variant" />
               </div>
               <span className="text-sm font-semibold">{t('settings.helpSupport')}</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-on-surface-variant/40 rtl:rotate-180" />
-          </button>
+            <ExternalLink className="w-4 h-4 text-on-surface-variant/40" />
+          </a>
         </div>
 
         <p className="text-center text-xs text-on-surface-variant pb-6">{t('settings.poweredBy')}</p>

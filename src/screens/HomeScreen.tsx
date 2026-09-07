@@ -1,6 +1,6 @@
 import { useState, useEffect, memo } from 'react';
 import { useFmt } from '../hooks/useCurrency';
-import { Search, Bell, ChevronRight, Clock, Star, RefreshCw, MapPin } from 'lucide-react';
+import { Search, ChevronRight, Clock, Star, RefreshCw, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 
@@ -50,12 +50,6 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
   const fmt = useFmt();
   const isRTL = i18n.language === 'ar';
 
-  const FALLBACK_PROMOS = [
-    { title: t('home.promos.freePickup.title'),   subtitle: t('home.promos.freePickup.subtitle'),   emoji: '🛍️' },
-    { title: t('home.promos.offMains.title'),     subtitle: t('home.promos.offMains.subtitle'),     emoji: '🎉' },
-    { title: t('home.promos.newArrivals.title'),  subtitle: t('home.promos.newArrivals.subtitle'),  emoji: '✨' },
-  ];
-
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,8 +68,8 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
   useEffect(() => {
     fetch('/api/banners/public')
       .then(r => r.ok ? r.json() : [])
-      .then(data => { if (data.length) setBanners(data); })
-      .catch(() => { /* keep fallback */ });
+      .then(data => setBanners(Array.isArray(data) ? data : []))
+      .catch(() => { /* no banners, the slider stays hidden */ });
   }, []);
 
   useEffect(() => {
@@ -88,7 +82,11 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
     } catch { /* ignore */ }
   }, []);
 
-  const slides = banners.length ? banners : FALLBACK_PROMOS;
+  const slides = banners;
+  const activeSlide = slides[promoIdx] ?? slides[0];
+  useEffect(() => {
+    setPromoIdx(0);
+  }, [slides.length]);
   useEffect(() => {
     if (slides.length <= 1) return;
     const timer = setInterval(() => setPromoIdx(i => (i + 1) % slides.length), 3500);
@@ -106,11 +104,8 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
     <div className="bg-surface min-h-screen pb-4">
       {/* Sticky Header */}
       <div className="bg-surface px-5 pt-12 pb-4 sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center mb-4">
           <img src="/logo-dark.svg" alt="Monar" className="h-7 w-auto" />
-          <button className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center active:scale-90 transition-transform">
-            <Bell className="w-5 h-5 text-on-surface-variant" />
-          </button>
         </div>
         <div className="flex items-center gap-3 bg-surface-container rounded-2xl px-4 py-3 text-on-surface-variant">
           <Search className="w-4 h-4 shrink-0" />
@@ -128,7 +123,8 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
       </div>
 
       <div className="px-5 pt-5 space-y-6">
-        {/* Promo Slider */}
+        {/* Promo Slider — only rendered when the restaurant has published banners */}
+        {slides.length > 0 && (
         <div>
           <div className="relative overflow-hidden rounded-3xl" style={{ height: 148 }}>
             <AnimatePresence initial={false} mode="wait">
@@ -156,15 +152,15 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
                   <span className="inline-block text-[10px] font-bold uppercase tracking-widest bg-white/20 text-white px-2.5 py-1 rounded-full mb-2">
                     {`${promoIdx + 1} / ${slides.length}`}
                   </span>
-                  <p className="text-2xl font-extrabold text-white leading-tight">{slides[promoIdx].title}</p>
-                  {slides[promoIdx].subtitle && (
-                    <p className="text-sm text-white/75 mt-1 leading-snug">{slides[promoIdx].subtitle}</p>
+                  <p className="text-2xl font-extrabold text-white leading-tight">{activeSlide.title}</p>
+                  {activeSlide.subtitle && (
+                    <p className="text-sm text-white/75 mt-1 leading-snug">{activeSlide.subtitle}</p>
                   )}
                 </div>
 
                 {/* Emoji bubble */}
                 <div className="relative z-10 w-20 h-20 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-                  <span className="text-4xl">{slides[promoIdx].emoji}</span>
+                  <span className="text-4xl">{activeSlide.emoji}</span>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -180,6 +176,7 @@ export const HomeScreen = ({ onOpenRestaurant, onOpenTracking, onViewAllOrders }
             </div>
           )}
         </div>
+        )}
 
         {/* Food Categories */}
         <div>

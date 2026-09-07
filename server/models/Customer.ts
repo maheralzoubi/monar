@@ -7,7 +7,8 @@ export interface ICustomer extends Document {
   name: string;
   phone?: string;
   status: 'active' | 'locked';
-  restaurantId: mongoose.Types.ObjectId;
+  /** Restaurant the customer first signed up at. Attribution only — accounts are platform-wide. */
+  restaurantId?: mongoose.Types.ObjectId;
   comparePassword(candidate: string): Promise<boolean>;
 }
 
@@ -18,13 +19,14 @@ const CustomerSchema = new Schema<ICustomer>(
     name: { type: String, required: true, trim: true },
     phone: { type: String, trim: true },
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
-    restaurantId: { type: Schema.Types.ObjectId, ref: 'Restaurant', required: true },
+    restaurantId: { type: Schema.Types.ObjectId, ref: 'Restaurant' },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
-// Unique email per restaurant (not platform-wide)
-CustomerSchema.index({ email: 1, restaurantId: 1 }, { unique: true });
+// One account per email across the whole platform, so a customer signs in once
+// and can order from any restaurant.
+CustomerSchema.index({ email: 1 }, { unique: true });
 
 CustomerSchema.pre('save', async function () {
   if (!this.isModified('password')) return;

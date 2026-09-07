@@ -8,7 +8,8 @@ interface Props {
   onSuccess: () => void;
   onBack: () => void;
   onLoginClick: () => void;
-  restaurantId: string;
+  /** Only set when registering from inside a restaurant; recorded for attribution. */
+  restaurantId?: string;
 }
 
 type Step = 'form' | 'verify';
@@ -39,7 +40,7 @@ export const CustomerRegisterScreen = ({ onSuccess, onBack, onLoginClick, restau
       const res = await fetch('/api/customer/register-start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, restaurantId }),
+        body: JSON.stringify({ ...form, ...(restaurantId ? { restaurantId } : {}) }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.message ?? t('customerRegister.registrationFailed')); return; }
@@ -59,7 +60,7 @@ export const CustomerRegisterScreen = ({ onSuccess, onBack, onLoginClick, restau
       const res = await fetch('/api/customer/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, code, restaurantId }),
+        body: JSON.stringify({ email: form.email, code }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -84,7 +85,7 @@ export const CustomerRegisterScreen = ({ onSuccess, onBack, onLoginClick, restau
       await fetch('/api/customer/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, restaurantId }),
+        body: JSON.stringify({ email: form.email }),
       });
       setCode('');
       setResendSent(true);

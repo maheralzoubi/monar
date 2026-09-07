@@ -152,7 +152,7 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
   if (authMode === 'login') {
     return (
       <CustomerLoginScreen
-        restaurantId={restaurantId!}
+        restaurantId={restaurantId ?? undefined}
         onBack={() => setAuthMode(null)}
         onRegisterClick={() => setAuthMode('register')}
         onSuccess={() => { setAuthMode(null); handlePlace(); }}
@@ -162,7 +162,7 @@ export const CartScreen = ({ onBack, onOrderPlaced }: Props) => {
   if (authMode === 'register') {
     return (
       <CustomerRegisterScreen
-        restaurantId={restaurantId!}
+        restaurantId={restaurantId ?? undefined}
         onBack={() => setAuthMode(null)}
         onLoginClick={() => setAuthMode('login')}
         onSuccess={() => { setAuthMode(null); handlePlace(); }}

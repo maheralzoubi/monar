@@ -49,6 +49,12 @@ async function startServer() {
   app.get('/api/plans', getPublicPlans);
   app.use('/api', apiRouter);
 
+  // Public support page (the App Store "Support URL"). Registered before the SPA
+  // handlers below so /support resolves to the page instead of the app shell.
+  app.get('/support', (_req, res) => {
+    res.sendFile(path.join(process.cwd(), 'public', 'support.html'));
+  });
+
   if (env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
