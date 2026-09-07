@@ -23,9 +23,14 @@ export async function requireCustomer(req: CustomerRequest, res: Response, next:
       return;
     }
 
-    // Block locked accounts
+    // A token outliving its account (deleted from another device) is a stale
+    // session, not a locked account — 401 so the client signs out quietly.
     const customer = await Customer.findById(payload.id).select('status');
-    if (!customer || customer.status === 'locked') {
+    if (!customer) {
+      res.status(401).json({ message: 'Invalid or expired token' });
+      return;
+    }
+    if (customer.status === 'locked') {
       res.status(403).json({ message: 'Account is locked. Please contact support.' });
       return;
     }

@@ -283,12 +283,19 @@
   "settings": {
     "preferences": "Preferences",
     "language": "Language",
-    "notifications": "Notifications",
     "about": "About",
     "appVersion": "App Version",
     "helpSupport": "Help & Support",
     "poweredBy": "Powered by Monar",
-    "logout": "Log Out"
+    "logout": "Log Out",
+    "account": "Account",
+    "deleteAccount": "Delete Account",
+    "deleteTitle": "Delete your account?",
+    "deleteBody": "This permanently deletes your account and your personal details. Orders you have already placed stay with the restaurants that fulfilled them. This cannot be undone.",
+    "deleteConfirm": "Yes, delete my account",
+    "deleting": "Deleting…",
+    "deleteFailed": "Could not delete your account. Please try again.",
+    "cancel": "Cancel"
   },
   "welcome": {
     "tagline": "Pre-order · Skip the Wait",

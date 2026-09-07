@@ -99,6 +99,18 @@ export const updateMe = async (req: CustomerRequest, res: Response, next: NextFu
   } catch (e) { next(e); }
 };
 
+// Permanently removes the signed-in customer's account. Orders are left with the
+// restaurants that fulfilled them — they are business records and carry only a
+// display name, never a link back to the account.
+export const deleteMe = async (req: CustomerRequest, res: Response, next: NextFunction) => {
+  try {
+    const customer = await Customer.findByIdAndDelete(req.customer!.id);
+    if (!customer) { res.status(404).json({ message: 'Not found' }); return; }
+    await PendingCustomerSignup.deleteOne({ email: customer.email });
+    res.status(204).send();
+  } catch (e) { next(e); }
+};
+
 // Sends a verification code before any real Customer account exists. Verifying
 // the code (via verifyEmail) creates the account and logs the customer in.
 export const registerStart = async (req: Request, res: Response, next: NextFunction) => {
